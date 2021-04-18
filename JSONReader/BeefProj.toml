@@ -1,0 +1,6 @@
+FileVersion = 1
+
+[Project]
+Name = "JSONReader"
+TargetType = "BeefLib"
+StartupObject = "JSONReader.Program"

@@ -1,0 +1,18 @@
+FileVersion = 1
+Dependencies = {corlib = "*", corlib = "*", JSONReader = "*"}
+
+[Project]
+Name = "Generator"
+StartupObject = "Generator.Program"
+
+[[Project.DistinctOptions]]
+Filter = ""
+AllocStackTraceDepth = 10
+
+[Configs.Debug.Win64]
+StackSize = 64000000
+DebugCommandArguments = "$(WorkspaceDir)\\steam_api.json $(WorkspaceDir)\\Steamworks\\src"
+
+[[Configs.Debug.Win64.DistinctOptions]]
+Filter = ""
+AllocStackTraceDepth = 10

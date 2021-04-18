@@ -1,0 +1,5 @@
+FileVersion = 1
+Projects = {Generator = {Path = "Generator"}, JSONReader = {Path = "JSONReader"}}
+
+[Workspace]
+StartupProject = "Generator"
