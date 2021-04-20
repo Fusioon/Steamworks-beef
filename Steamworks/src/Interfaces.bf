@@ -1382,6 +1382,7 @@ namespace Steamworks
 			Right = 1,
 			Middle = 2,
 		}
+
 		public enum EMouseCursor : int32
 		{
 			dc_user = 0,
@@ -1427,13 +1428,15 @@ namespace Steamworks
 			dc_custom = 40,
 			dc_last = 41,
 		}
+
 		public enum EHTMLKeyModifiers : int32
 		{
-			Modifier_None = 0,
-			Modifier_AltDown = 1,
-			Modifier_CtrlDown = 2,
-			Modifier_ShiftDown = 4,
+			None = 0,
+			AltDown = 1,
+			CtrlDown = 2,
+			ShiftDown = 4,
 		}
+
 		[LinkName("SteamAPI_ISteamHTMLSurface_Init")]
 		public extern bool Init();
 		[LinkName("SteamAPI_ISteamHTMLSurface_Shutdown")]

@@ -48,6 +48,7 @@ namespace Steamworks
 			FlushedCallbackQueue = 0,
 			PipeFail = 1,
 		}
+
 		public uint8 eFailureType;
 	}
 
@@ -538,9 +539,10 @@ namespace Steamworks
 		public enum PlayerAcceptState_t : int32
 		{
 			Unknown = 0,
-			PlayerAccepted = 1,
-			PlayerDeclined = 2,
+			Accepted = 1,
+			Declined = 2,
 		}
+
 		public EResult eResult;
 		public uint64 ullSearchID;
 		public CSteamID SteamIDPlayerFound;

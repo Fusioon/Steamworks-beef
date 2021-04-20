@@ -100,6 +100,7 @@ namespace Steamworks
 		static int CreateEnumNameTransforms(String enumName, List<String> output)
 		{
 			int count = 0;
+			int uppercaseStart = -1;
 
 			void Add(StringView name)
 			{
@@ -109,58 +110,79 @@ namespace Steamworks
 					output.Add(new .(name));
 
 				count++;
+				uppercaseStart = -1;
 			}
+
+			int lastPos = 0;
+
 
 			List<String> tmp = scope .();
 			void AddTmp(StringView name)
 			{
-				tmp.Add(new .(name));
+				if(lastPos != 0)
+					tmp.Add(new .(name));
 			}	
 
-			Add(enumName);
-
-			int lastPos = 0;
 			char8 lc = 0;
 			int i;
 			for (i = 0; i < enumName.Length;)
 			{
 				let c = enumName[i];
-				if ((c.IsUpper || c == '_') && lc.IsLower && i - lastPos >= 2)
+
+				if(c == '_')
 				{
-					Add(StringView(enumName, lastPos, i - lastPos));
 					AddTmp(StringView(enumName, 0, i));
-					lastPos = i;
-					if (c == '_')
+					Add(StringView(enumName, lastPos, i - lastPos));
+
+					lastPos = i +1;
+				}
+
+				if(c.IsUpper)
+				{
+					if(lc.IsLower)
 					{
-						lastPos++;
+						AddTmp(StringView(enumName, 0, i));
+						Add(StringView(enumName, lastPos, i - lastPos));
+						lastPos = i;
 					}
+
+					if(uppercaseStart == -1)
+						uppercaseStart = i;
+				}
+
+				if(c.IsLower)
+				{
+					if(uppercaseStart != -1  && i - uppercaseStart >= 2)
+					{
+						AddTmp(StringView(enumName, 0, i - 1));
+						Add(StringView(enumName, uppercaseStart, i - uppercaseStart - 1));
+						lastPos = i-1;
+					}
+					if(uppercaseStart != i)
+						uppercaseStart = -1;
 				}
 
 				lc = c;
 				i++;
 			}
 
-			if(lastPos < i)
+			if(lastPos != 0 && lastPos < i)
 			{
 				Add(StringView(enumName, lastPos, i - lastPos));
 			}
 
-			Runtime.Assert(count < 10);
-
-			if(enumName == "ENotificationPosition")
-				Console.Write("");
-
 			let maxcount = count;
-			
-			for(i = 1; i < maxcount; i++)
-			{
-				if(!output[i].StartsWith("E"))
-					Add(scope $"E{output[i]}");
 
-				for(int j = i+1; j < maxcount - 1; j++)
+			for(i = 0; i < maxcount; i++)
+			{
+				for(int j = 0; j < maxcount; j++)
 				{
+					if( i == j )
+						continue;
+
 					Add(scope $"{output[i]}{output[j]}");
 				}
+				
 			}
 
 			for(let n in tmp)
@@ -171,55 +193,107 @@ namespace Steamworks
 
 			if(enumName.EndsWith("Flags"))
 			{
+				Add("Flag");
 				let withoutFlags = Add( .. enumName.Substring(0, enumName.Length - "Flags".Length));
 				Add(scope $"{withoutFlags}Flag");
 			}	
+
 			if(enumName.EndsWith("Kind"))
 				Add(enumName.Substring(0, enumName.Length - "Kind".Length));
+
+			if(enumName.EndsWith("Modifiers", .OrdinalIgnoreCase))
+				Add(enumName.Substring(0, enumName.Length - 1));
+
+			let sorter = Sorter<String, void>(output.Ptr, null, count, scope (l, r) => l.Length <=> r.Length);
+			sorter.[Friend]Sort(0, count);
 
 			return count;
 		}
 
-		static void GetEnumValueName(StringView valueName, List<String> transforms, int count, String buffer, out int matchIndex)
+		static void GetEnumValueName(StringView enumName, StringView valueName, Span<String> transforms, String buffer)
 		{
 			StringView name = valueName;
 
 			bool isk_n = false;
+			bool removedE = false;
 
-			if(name.StartsWith("k_n"))
+			if(name.StartsWith("k_"))
 			{
-				name = name.Substring(3);
-				isk_n = true;
+				if(name[2] == 'n')
+				{
+					name = name.Substring(3);
+					isk_n = true;
+				}
+				else if(name[2] == 'e')
+				{
+					name = name.Substring(3);
+					removedE = true;
+				}
+				else
+				{
+					name = name.Substring(2);
+				}
 			}
-			else if(name.StartsWith("k_"))
-				name = name.Substring(2);
 
-			if(name.StartsWith("eE"))	// for EVRHMDType
-				name = name.Substring(1);
-
-			if(isk_n && name.StartsWith(transforms[0].Substring(1), .OrdinalIgnoreCase))
+			if(isk_n && name.StartsWith(enumName.Substring(1), .OrdinalIgnoreCase))
 			{
-				matchIndex = 0;
-				name = name.Substring(transforms[0].Length - 1);
+				name = name.Substring(enumName.Length - 1);
 			}
-			else if (name.StartsWith(transforms[0], .OrdinalIgnoreCase))
+			else if (name.StartsWith(enumName, .OrdinalIgnoreCase))
 			{
-				matchIndex = 0;
-				name = name.Substring(transforms[0].Length);
+				name = name.Substring(enumName.Length);
 			}
 			else
 			{
-				matchIndex = -1;
-
-				for (int i = count - 1; i >= 1; i--)
+				bool startsWithE = name.StartsWith('E');
+				int32 itCount = 2;
+				MAIN_LOOP: while(itCount > 0)
 				{
-					if (name.StartsWith(transforms[i], .OrdinalIgnoreCase))
+					for (int i = transforms.Length - 1; i >= 1; i--)
 					{
-						matchIndex = i;
-						name = name.Substring(transforms[i].Length);
-						break;
+						StringView newName;
+						FOUND_MATCH: do
+						{
+							if (name.StartsWith(transforms[i], .OrdinalIgnoreCase))
+							{
+								newName = name.Substring(transforms[i].Length);
+
+								break FOUND_MATCH;
+							}
+							else if (removedE)
+							{
+								if(name.StartsWith(transforms[i].Substring(1), .OrdinalIgnoreCase))
+								{
+									newName = name.Substring(transforms[i].Length - 1);
+									break FOUND_MATCH;
+								}
+								
+							}
+							else if (startsWithE)
+							{
+								if(name.Substring(1).StartsWith(transforms[i], .OrdinalIgnoreCase))
+								{
+									newName = name.Substring(transforms[i].Length + 1);
+									break FOUND_MATCH;
+								}
+							}
+							continue;
+						}
+
+						if(newName.Length <= 2)
+							break MAIN_LOOP;
+
+						name = newName;
+
+						if(i >= (int)(transforms.Length / 1.25f))
+							break MAIN_LOOP;
+
+						itCount--;
+						continue MAIN_LOOP;
 					}
+					break MAIN_LOOP;
 				}
+				
 			}
 
 			while (name.StartsWith('_'))
@@ -238,12 +312,15 @@ namespace Steamworks
 			buffer.Append(name);
 		}
 
-		static String GenerateEnums(JArray enums, List<GeneratedEnumInfo> o_enumList)
+		static String GenerateEnums(JArray enums)
 		{
 			String buf = new .();
 			AppendHeader(buf);
+			StructGenerateEnums(enums, buf, null, 1);
+			AppendFooter(buf);
+			return buf;
 
-			String valueNameBuffer = scope .(96);
+			/*String valueNameBuffer = scope .(96);
 			List<String> enumValueNameTransforms = scope .();
 			int transformsCount = ?;
 
@@ -257,8 +334,6 @@ namespace Steamworks
 				if (TRANSFORM_ENUM_VALUE_NAMES)
 					transformsCount = CreateEnumNameTransforms(enumname, enumValueNameTransforms);
 
-				int currentTransformIndex = 0;
-
 				for (let v in values)
 				{
 					JObject vo = v.AsObject;
@@ -269,22 +344,19 @@ namespace Steamworks
 
 					if(TRANSFORM_ENUM_VALUE_NAMES)
 					{
-						GetEnumValueName(vn, enumValueNameTransforms, transformsCount, valueNameBuffer, let transformMatch);
+						GetEnumValueName(enumname, vn, .(enumValueNameTransforms.Ptr, transformsCount), valueNameBuffer);
 						name = valueNameBuffer;
-						currentTransformIndex = transformMatch;
-
-						if(name == "Force32Bit")
-							continue;
 					}
 					else
 						name = vn;
+
+					if(name.Equals("Force32Bit", true))
+						continue;
 
 					buf.AppendF($"\t\t{name} = {val},\n");
 
 				}
 				buf.Append("\t}\n\n");
-
-				o_enumList.Add(.(enumname));
 			}
 
 			AppendFooter(buf);
@@ -292,7 +364,7 @@ namespace Steamworks
 			{
 				delete v;
 			}	
-			return buf;
+			return buf;*/
 		}
 
 		static String GenerateTypedefs(JArray typedefs, HashSet<String> generatedTypedefs)
@@ -456,10 +528,12 @@ namespace Steamworks
 			}
 		}
 
-		static void StructGenerateEnums(JArray enums, String buffer, Dictionary<String, String> generatedEnums)
+		static void StructGenerateEnums(JArray enums, String buffer, Dictionary<String, String> generatedEnums, int indent)
 		{
+			String tab = scope .('\t', indent);
+
 			List<String> transforms = scope .();
-			int count;
+			int count = ?;
 			defer
 			{
 				for(let t in transforms)
@@ -471,27 +545,44 @@ namespace Steamworks
 				JObject obj = e.AsObject;
 
 				String enumName = obj["enumname"].Value.AsString;
-				String fqname = obj["fqname"].Value.AsString;
-				generatedEnums.Add(fqname, enumName);
-				count = CreateEnumNameTransforms(enumName, transforms);
+				if(generatedEnums != null && obj["fqname"] case .Ok(let val))
+				{
+					String fqname = val.AsString;
+					generatedEnums.Add(fqname, enumName);
+				}
+
+				if (TRANSFORM_ENUM_VALUE_NAMES)
+					count = CreateEnumNameTransforms(enumName, transforms);
+
 				JArray values = obj["values"].Value.AsArray;
 
 				StringView underlyingType = "int32";
 
-				buffer.AppendF($"\t\tpublic enum {enumName} : {(underlyingType)}\n\t\t{{\n");
+				buffer.AppendF($"{tab}public enum {enumName} : {(underlyingType)}\n{tab}{{\n");
 
 				for(let v in values)
-				{
+				BUFFER_SCOPE: {
 					JObject vo = v.AsObject;
 					String vn = vo["name"].Value.AsString;
 					String vv = vo["value"].Value.AsString;
 
-					String vnBuffer = scope .(64);
-					GetEnumValueName(vn, transforms, count, vnBuffer, ?);
-					buffer.AppendF($"\t\t\t{vnBuffer} = {vv},\n");
+					StringView name;
+					if(TRANSFORM_ENUM_VALUE_NAMES)
+					{
+						String vnBuffer = scope:BUFFER_SCOPE .(64);
+						GetEnumValueName(enumName, vn, .(transforms.Ptr, count), vnBuffer);
+						name = vnBuffer;
+					}
+					else
+						name = vn;
+
+					if(name.Equals("Force32Bit", true))
+						continue;
+					
+					buffer.AppendF($"{tab}\t{name} = {vv},\n");
 				}
 
-				buffer.Append("\t\t}\n");
+				buffer.AppendF($"{tab}}}\n\n");
 			}	
 		}	
 
@@ -545,7 +636,7 @@ namespace Steamworks
 				if(obj["enums"] case .Ok(let v))
 				{
 					generatedEnums = scope:: .();
-					StructGenerateEnums(v.AsArray, buf, generatedEnums);
+					StructGenerateEnums(v.AsArray, buf, generatedEnums, 2);
 				}
 
 				StructGenerateFields(fields, buf, generatedEnums);
@@ -641,7 +732,7 @@ namespace Steamworks
 				if(obj["enums"] case .Ok(let val))
 				{
 					Dictionary<String, String> generatedEnums = scope .();
-					StructGenerateEnums(val.AsArray, buf, generatedEnums);
+					StructGenerateEnums(val.AsArray, buf, generatedEnums, 2);
 				}
 
 				if(obj["fields"] case .Ok(let val))
@@ -669,29 +760,6 @@ namespace Steamworks
 			return buf;
 		}
 
-		struct GeneratedEnumInfo : IDisposable
-		{
-			public List<String> validNames;
-			public StringView name;
-
-			public this(StringView enumName)
-			{
-				name = enumName;
-				validNames = new .();
-			}
-
-			public void Dispose()
-			{
-				if(validNames != null)
-				{
-					for(validNames)
-						delete _;
-
-					delete validNames;
-				}
-			}
-		}
-
 		public static Result<void> GenerateFromJObject(JObject json, String outDirPath)
 		{
 			if ((Directory.CreateDirectory(outDirPath) case .Err(let err)) && err != .AlreadyExists)
@@ -699,7 +767,6 @@ namespace Steamworks
 				Console.WriteLine("Couldn't create output directory!");
 				return .Err;
 			}
-
 
 			HashSet<String> generatedTypedefs = scope .();
 			// TYPEDEFS
@@ -716,15 +783,9 @@ namespace Steamworks
 				delete constants;
 			}
 
-			List<GeneratedEnumInfo> generatedEnums = scope .();
-			defer
-			{
-				for(generatedEnums)
-					_.Dispose();
-			}
 			// ENUMS
 			{
-				let enums = GenerateEnums(json["enums"].Value.AsArray, generatedEnums);
+				let enums = GenerateEnums(json["enums"].Value.AsArray);
 				File.WriteAllText(Path.InternalCombine(.. scope .(), outDirPath, "Enums.bf"), enums);
 				delete enums;
 			}

@@ -328,9 +328,9 @@ namespace Steamworks
 	public enum EChatSteamIDInstanceFlags : int32
 	{
 		AccountInstanceMask = 4095,
-		InstanceFlagClan = 524288,
-		InstanceFlagLobby = 262144,
-		InstanceFlagMMSLobby = 131072,
+		Clan = 524288,
+		Lobby = 262144,
+		MMSLobby = 131072,
 	}
 
 	public enum EMarketingMessageFlags : int32
@@ -1816,7 +1816,7 @@ namespace Steamworks
 		Settings = 7,
 		Console = 8,
 		Browser = 9,
-		ParentalSetup = 10,
+		Setup = 10,
 		Library = 11,
 		Test = 12,
 		SiteLicense = 13,
@@ -1843,7 +1843,6 @@ namespace Steamworks
 		Attempting = 3,
 		Current = 100,
 		Unknown = 0,
-		Force32bit = 2147483647,
 	}
 
 	public enum ESteamNetworkingIdentityType : int32
@@ -1857,7 +1856,6 @@ namespace Steamworks
 		GenericString = 2,
 		GenericBytes = 3,
 		UnknownType = 4,
-		Force32bit = 2147483647,
 	}
 
 	public enum ESteamNetworkingConnectionState : int32

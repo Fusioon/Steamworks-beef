@@ -8,11 +8,14 @@ namespace Steamworks
 		public static extern ISteamClient SteamClient();
 
 		[CLink]
+		public static extern bool SteamAPI_IsSteamRunning();
+
+		[CLink]
 		public static extern bool SteamAPI_Init();
 		[CLink]
 		public static extern void SteamAPI_ReleaseCurrentThreadMemory();
 		[CLink]
-		public static extern bool SteamAPI_RestartAppIfNecessary(uint32 unOwnAppID);
+		public static extern bool SteamAPI_RestartAppIfNecessary(AppId_t unOwnAppID);
 		[CLink]
 		public static extern void SteamAPI_RunCallbacks();
 		[CLink]
