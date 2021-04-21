@@ -89,6 +89,10 @@ namespace Steamworks
 				}
 
 				buf.AppendF($"\t\tpublic const {bfType} {name} = {(needsCast ? "(.)" : "")}{v};\n");
+				if(needsCast  && name.EndsWith("Invalid", .OrdinalIgnoreCase))
+				{
+					buf.AppendF($"\t\textension {bfType} {{ public const Self Invalid = {name}; }}\n");
+				}
 			}
 
 			buf.Append("\t}\n");
