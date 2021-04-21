@@ -23,6 +23,7 @@ namespace Steam
 
 			CallbackDispatcher.Init();
 
+			CheckResult!(SteamUser.Init());
 			CheckResult!(SteamFriends.Init());
 
 			return true;
@@ -65,6 +66,8 @@ namespace Steam
 				return false;
 
 			CallbackDispatcher.Init();
+			
+			return true;
 		}
 	}
 }

@@ -126,7 +126,7 @@ namespace Steamworks
 		//-----------------------------------------------------------------------------
 		// Purpose: Is this a chat account id?
 		//-----------------------------------------------------------------------------
-		public bool IsLobby => ( AccountType == .Chat ) && ( AccountInstance & (.)EChatSteamIDInstanceFlags.InstanceFlagLobby !=  0);
+		public bool IsLobby => ( AccountType == .Chat ) && ( AccountInstance & (.)EChatSteamIDInstanceFlags.Lobby !=  0);
 
 		//-----------------------------------------------------------------------------
 		// Purpose: Is this an individual user account id?

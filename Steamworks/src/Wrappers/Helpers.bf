@@ -8,7 +8,7 @@ namespace Steam
 		{
 #if STEAM_AUTO_TERMINATE_STRINGS
 			var str;
-			if(*(str.Ptr + str.Length) != '\0')
+			if(!str.IsNull && (str.Ptr + str.Length) != '\0')
 			{
 				String tmp = scope:mixin .(str, .NullTerminate);
 				str = tmp;
