@@ -88,10 +88,12 @@ namespace Steamworks
 					v = "(int32)0xFFFFFFFF";
 				}
 
-				buf.AppendF($"\t\tpublic const {bfType} {name} = {(needsCast ? "(.)" : "")}{v};\n");
+				StringView cast = (needsCast ? "(.)" : "");
+
+				buf.AppendF($"\t\tpublic const {bfType} {name} = {cast}{v};\n");
 				if(needsCast  && name.EndsWith("Invalid", .OrdinalIgnoreCase))
 				{
-					buf.AppendF($"\t\textension {bfType} {{ public const Self Invalid = {name}; }}\n");
+					buf.AppendF($"\t\textension {bfType} {{ public const Self Invalid = {cast}{v}; }}\n");
 				}
 			}
 
