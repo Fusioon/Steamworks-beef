@@ -9,7 +9,7 @@ namespace Steam
 	{
 		internal static mixin CheckResult(bool b)
 		{
-			if(!b)
+			if (!b)
 				return false;
 		}
 	}
@@ -18,13 +18,15 @@ namespace Steam
 	{
 		public static bool Init()
 		{
-			if(!SteamAPI_Init())
+			if (!SteamAPI_Init())
 				return false;
 
 			CallbackDispatcher.Init();
 
 			CheckResult!(SteamUser.Init());
 			CheckResult!(SteamFriends.Init());
+			CheckResult!(SteamUtils.Init());
+			CheckResult!(SteamApps.Init());
 
 			return true;
 		}
@@ -44,30 +46,39 @@ namespace Steam
 			return SteamAPI_RestartAppIfNecessary(unOwnAppID);
 		}
 
-		public static bool IsSteamRunning() {
+		public static bool IsSteamRunning()
+		{
 			return SteamAPI_IsSteamRunning();
 		}
 
-		public static HSteamPipe GetHSteamPipe() {
+		public static HSteamPipe GetHSteamPipe()
+		{
 			return SteamAPI_GetHSteamPipe();
 		}
 
-		public static HSteamUser GetHSteamUser() {
+		public static HSteamUser GetHSteamUser()
+		{
 			return SteamAPI_GetHSteamUser();
 		}
 
 	}
 
+	[Error("Not Implemented")]
 	public static class GameServer
 	{
 		public static bool Init(uint32 unIP, uint16 usGamePort, uint16 usQueryPort, EServerMode eServerMode, StringView pchVersionString)
 		{
-			if(!SteamGameServer_Init(unIP, 0, usGamePort, usQueryPort, eServerMode, TerminateString!(pchVersionString)))
+			if (!SteamGameServer_Init(unIP, 0, usGamePort, usQueryPort, eServerMode, TerminateString!(pchVersionString)))
 				return false;
 
 			CallbackDispatcher.Init();
-			
+
 			return true;
+		}
+
+		public static void RunCallbacks()
+		{
+			CallbackDispatcher.RunFrame(true);
 		}
 	}
 }

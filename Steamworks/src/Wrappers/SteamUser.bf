@@ -144,7 +144,7 @@ namespace Steam
 		}
 
 		[NoDiscard]
-		public static SteamAPICall_t RequestStoreAuthURL(StringView pchRedirectURL )
+		public static SteamAPICall_t RequestStoreAuthURL(StringView pchRedirectURL)
 		{
 			return _user.RequestStoreAuthURL(TerminateString!(pchRedirectURL));
 		}
@@ -159,7 +159,7 @@ namespace Steam
 			_user.StopVoiceRecording();
 		}
 
-		public static void TerminateGameConnection( uint32 unIPServer, uint16 usPortServer )
+		public static void TerminateGameConnection(uint32 unIPServer, uint16 usPortServer)
 		{
 			_user.TerminateGameConnection(unIPServer, usPortServer);
 		}
@@ -167,10 +167,10 @@ namespace Steam
 		[Obsolete("Only used by only a few games to track usage events before Stats and Achievements was introduced.", false)]
 		public static void TrackAppUsageEvent(CGameID gameID, int32 eAppUsageEvent, StringView pchExtraInfo = default)
 		{
-			_user.TrackAppUsageEvent(gameID,  eAppUsageEvent, TerminateString!(pchExtraInfo));
+			_user.TrackAppUsageEvent(gameID, eAppUsageEvent, TerminateString!(pchExtraInfo));
 		}
 
-		public static EUserHasLicenseForAppResult UserHasLicenseForApp( CSteamID steamID, AppId_t appID )
+		public static EUserHasLicenseForAppResult UserHasLicenseForApp(CSteamID steamID, AppId_t appID)
 		{
 			return _user.UserHasLicenseForApp(steamID, appID);
 		}

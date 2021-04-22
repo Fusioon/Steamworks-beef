@@ -63,7 +63,7 @@ namespace Steamworks
 		public static extern void SteamAPI_ManualDispatch_RunFrame(HSteamPipe hSteamPipe);
 
 
-		public function void SteamAPIWarningMessageHook_t(int32 arg1, char8* arg2);
+		public function void SteamAPIWarningMessageHook_t(int32 nSeverity, char8* pchDebugText);
 		public function uint32 SteamAPI_CheckCallbackRegistered_t(int32 iCallbackNum);
 
 	}
