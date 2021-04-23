@@ -27,6 +27,8 @@ namespace Steam
 			CheckResult!(SteamFriends.Init());
 			CheckResult!(SteamUtils.Init());
 			CheckResult!(SteamApps.Init());
+			CheckResult!(SteamMatchmaking.Init());
+			CheckResult!(SteamMatchmakingServers.Init());
 
 			return true;
 		}
