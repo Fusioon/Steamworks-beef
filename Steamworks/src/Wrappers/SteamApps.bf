@@ -13,10 +13,10 @@ namespace Steam
 			return (_apps = Accessors.SteamApps()) != 0;
 		}
 
-		public static bool GetDLCDataByIndex(int32 iDLC, out AppId_t pAppID, out bool pbAvailable, String pchName)
+		public static bool GetDLCDataByIndex(int32 iDLC, out AppId_t pAppID, out bool pbAvailable, Span<char8> pchName)
 		{
 			pAppID = pbAvailable = ?;
-			return _apps.BGetDLCDataByIndex(iDLC, &pAppID, &pbAvailable, pchName.Ptr, (.)pchName.AllocSize);
+			return _apps.BGetDLCDataByIndex(iDLC, &pAppID, &pbAvailable, pchName.Ptr, (.)pchName.Length);
 		}
 
 		public static bool IsAppInstalled(AppId_t appID)
@@ -70,11 +70,9 @@ namespace Steam
 			return _apps.GetAppBuildId();
 		}
 
-		public static uint32 GetAppInstallDir(AppId_t appID, String buffer)
+		public static uint32 GetAppInstallDir(AppId_t appID, Span<char8> buffer)
 		{
-			let length = _apps.GetAppInstallDir(appID, buffer.Ptr, (.)buffer.AllocSize);
-			buffer.Length = length;
-			return length;
+			return _apps.GetAppInstallDir(appID, buffer.Ptr, (.)buffer.Length);
 		}
 
 		public static CSteamID GetAppOwner()
@@ -87,9 +85,9 @@ namespace Steam
 			return StringView(_apps.GetAvailableGameLanguages());
 		}
 
-		public static bool GetCurrentBetaName(String buffer)
+		public static bool GetCurrentBetaName(Span<char8> buffer)
 		{
-			return _apps.GetCurrentBetaName(buffer, (.)buffer.AllocSize);
+			return _apps.GetCurrentBetaName(buffer.Ptr, (.)buffer.Length);
 		}
 
 		public static StringView GetCurrentGameLanguage()
@@ -124,11 +122,9 @@ namespace Steam
 			return _apps.GetInstalledDepots(appID, pvecDepots.Ptr, (uint32)pvecDepots.Length);
 		}
 
-		public static int32 GetLaunchCommandLine(String buffer)
+		public static int32 GetLaunchCommandLine(Span<char8> buffer)
 		{
-			let length = _apps.GetLaunchCommandLine(buffer.Ptr, (.)buffer.AllocSize);
-			buffer.Length = length;
-			return length;
+			return _apps.GetLaunchCommandLine(buffer.Ptr, (.)buffer.Length);
 		}
 
 		public static StringView GetLaunchQueryParam(StringView pchKey)

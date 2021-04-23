@@ -93,13 +93,10 @@ namespace Steam
 			return _friends.GetClanChatMemberCount(clanId);
 		}
 
-		public static int32 GetClanChatMessage(CSteamID clanId, int32 message, String messageBuffer, out EChatEntryType type, out CSteamID chatter)
+		public static int32 GetClanChatMessage(CSteamID clanId, int32 message, Span<uint8> messageBuffer, out EChatEntryType type, out CSteamID chatter)
 		{
 			chatter = type = ?;
-			char8[MESSAGE_BUFFER_SIZE] buffer = ?;
-			let length = _friends.GetClanChatMessage(clanId, message, &buffer, buffer.Count, &type, &chatter);
-			messageBuffer.Append(&buffer, length);
-			return length;
+			return _friends.GetClanChatMessage(clanId, message, messageBuffer.Ptr, (.)messageBuffer.Length, &type, &chatter);
 		}
 
 		public static int32 GetClanCount()
@@ -184,13 +181,10 @@ namespace Steam
 			return _friends.GetFriendGamePlayed(friendId, &info);
 		}
 
-		public static int32 GetFriendMessage(CSteamID friendId, int32 messageId, String messageBuffer, out EChatEntryType type)
+		public static int32 GetFriendMessage(CSteamID friendId, int32 messageId, Span<char8> messageBuffer, out EChatEntryType type)
 		{
 			type = ?;
-			char8[MESSAGE_BUFFER_SIZE] buffer = ?;
-			let length = _friends.GetFriendMessage(friendId, messageId, &buffer, buffer.Count, &type);
-			messageBuffer.Append(&buffer, length);
-			return length;
+			return _friends.GetFriendMessage(friendId, messageId, messageBuffer.Ptr, (.)messageBuffer.Length, &type);
 		}
 
 		public static StringView GetFriendPersonaName(CSteamID friendId)

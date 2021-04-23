@@ -111,14 +111,9 @@ namespace Steam
 		}
 
 		[Obsolete("You should use the Steam Cloud API from ISteamRemoteStorage instead.", false)]
-		public static bool GetUserDataFolder(String buffer)
+		public static bool GetUserDataFolder(Span<char8> buffer)
 		{
-			char8[k_cchFilenameMax * 4] filepath = ?;
-			if (!_user.GetUserDataFolder(&filepath, filepath.Count))
-				return false;
-
-			buffer.Append(&filepath);
-			return true;
+			return _user.GetUserDataFolder(buffer.Ptr, (.)buffer.Length);
 		}
 
 		public static EVoiceResult GetVoice(bool bWantCompressed, void* pDestBuffer, uint32 cbDestBufferSize, out uint32 nBytesWritten)

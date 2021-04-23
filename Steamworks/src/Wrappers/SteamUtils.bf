@@ -122,13 +122,9 @@ namespace Steam
 			return _utils.InitFilterText(unFilterOptions);
 		}
 
-		public static int32 FilterText(ETextFilteringContext eContext, CSteamID sourceSteamID, StringView pchInputMessage, String pchOutFilteredText)
+		public static int32 FilterText(ETextFilteringContext eContext, CSteamID sourceSteamID, StringView pchInputMessage, Span<char8> pchOutFilteredText)
 		{
-			let length = pchInputMessage.Length;
-			pchOutFilteredText.Reserve(length);
-			let chars = _utils.FilterText(eContext, sourceSteamID, TerminateString!(pchInputMessage), pchOutFilteredText.Ptr, (.)length);
-			pchOutFilteredText.[Friend]mLength = chars;
-			return chars;
+			return _utils.FilterText(eContext, sourceSteamID, TerminateString!(pchInputMessage), pchOutFilteredText.Ptr, (.)pchOutFilteredText.Length);
 		}
 
 		public static bool IsSteamInBigPictureMode()
