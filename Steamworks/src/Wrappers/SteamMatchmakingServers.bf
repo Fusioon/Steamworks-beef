@@ -7,7 +7,7 @@ using internal Steam;
 namespace Steam
 {
 	[CRepr]
-	struct SteamMatchmakingServerListResponseHandler<T> where T : Object, ISteamMatchmakingServerListResponse
+	struct SteamMatchmakingServerListResponseHandler
 	{
 		function void ServerRespondedFN(SelfOuter this, HServerListRequest hRequest, int32 iServer);
 		function void ServerFailedToRespondFN(SelfOuter this, HServerListRequest hRequest, int32 iServer);
@@ -42,16 +42,16 @@ namespace Steam
 		}
 
 		VTable* _vtable = &_vtbl;
-		T _obj;
+		ISteamMatchmakingServerListResponse _obj;
 
-		public this(T obj)
+		public this(ISteamMatchmakingServerListResponse obj)
 		{
 			_obj = obj;
 		}
 	}
 
 	[CRepr]
-	struct SteamMatchmakingPingResponseHandler<T> where T : Object, ISteamMatchmakingPingResponse
+	struct SteamMatchmakingPingResponseHandler
 	{
 		public function void ServerRespondedFN(SelfOuter this, ref gameserveritem_t server);
 		public function void ServerFailedToRespondFN(SelfOuter this);
@@ -81,16 +81,16 @@ namespace Steam
 
 
 		VTable* _vtable = &_vtbl;
-		T _obj;
+		ISteamMatchmakingPingResponse _obj;
 
-		public this(T obj)
+		public this(ISteamMatchmakingPingResponse obj)
 		{
 			_obj = obj;
 		}
 	}	
 
 	[CRepr]
-	struct SteamMatchmakingPlayersResponseHandler<T> where T : Object, ISteamMatchmakingPlayersResponse
+	struct SteamMatchmakingPlayersResponseHandler
 	{
 		function void AddPlayerToListFN(SelfOuter this, char8* pchName, int32 nScore, float flTimePlayed);
 		function void PlayersFailedToRespondFN(SelfOuter this);
@@ -127,16 +127,16 @@ namespace Steam
 		}
 
 		VTable* _vtable = &_vtbl;
-		T _obj;
+		ISteamMatchmakingPlayersResponse _obj;
 
-		public this(T obj)
+		public this(ISteamMatchmakingPlayersResponse obj)
 		{
 			_obj = obj;
 		}
 	}
 
 	[CRepr]
-	struct SteamMatchmakingRulesResponseHandler<T> where T : Object, ISteamMatchmakingRulesResponse
+	struct SteamMatchmakingRulesResponseHandler
 	{
 		function void RulesRespondedFN(SelfOuter this, char8* pchRule, char8* pchValue);
 		function void RulesFailedToRespondFN(SelfOuter this);
@@ -173,14 +173,13 @@ namespace Steam
 		}
 
 		VTable* _vtable = &_vtbl;
-		T _obj;
+		ISteamMatchmakingRulesResponse _obj;
 
-		public this(T obj)
+		public this(ISteamMatchmakingRulesResponse obj)
 		{
 			_obj = obj;
 		}
 	}
-
 
 	public static class SteamMatchmakingServers
 	{
@@ -190,38 +189,32 @@ namespace Steam
 			return (_mmservers = Accessors.SteamMatchmakingServers()) != 0;
 		}
 
-		public static HServerListRequest RequestInternetServerList<T>(AppId_t iApp, Span<MatchMakingKeyValuePair_t*> ppchFilters, in SteamMatchmakingServerListResponseHandler<T> pRequestServersResponse)
-			where T : Object, ISteamMatchmakingServerListResponse
+		public static HServerListRequest RequestInternetServerList(AppId_t iApp, Span<MatchMakingKeyValuePair_t*> ppchFilters, in SteamMatchmakingServerListResponseHandler pRequestServersResponse)
 		{
 			return _mmservers.RequestInternetServerList(iApp, ppchFilters.Ptr, (uint32)ppchFilters.Length, (void*)&pRequestServersResponse);
 		}
 
-		public static HServerListRequest RequestLANServerList<T>(AppId_t iApp, in SteamMatchmakingServerListResponseHandler<T> pRequestServersResponse)
-			where T : Object, ISteamMatchmakingServerListResponse
+		public static HServerListRequest RequestLANServerList(AppId_t iApp, in SteamMatchmakingServerListResponseHandler pRequestServersResponse)
 		{
 			return _mmservers.RequestLANServerList(iApp, (void*)&pRequestServersResponse);
 		}
 
-		public static HServerListRequest RequestFriendsServerList<T>(AppId_t iApp, Span<MatchMakingKeyValuePair_t*> ppchFilters, in SteamMatchmakingServerListResponseHandler<T> pRequestServersResponse)
-			where T : Object, ISteamMatchmakingServerListResponse
+		public static HServerListRequest RequestFriendsServerList(AppId_t iApp, Span<MatchMakingKeyValuePair_t*> ppchFilters, in SteamMatchmakingServerListResponseHandler pRequestServersResponse)
 		{
 			return _mmservers.RequestFriendsServerList(iApp, ppchFilters.Ptr, (uint32)ppchFilters.Length, (void*)&pRequestServersResponse);
 		}
 
-		public static HServerListRequest RequestFavoritesServerList<T>(AppId_t iApp, Span<MatchMakingKeyValuePair_t*> ppchFilters, uint32 nFilters, in SteamMatchmakingServerListResponseHandler<T> pRequestServersResponse)
-			where T : Object, ISteamMatchmakingServerListResponse
+		public static HServerListRequest RequestFavoritesServerList(AppId_t iApp, Span<MatchMakingKeyValuePair_t*> ppchFilters, uint32 nFilters, in SteamMatchmakingServerListResponseHandler pRequestServersResponse)
 		{
 			return _mmservers.RequestFriendsServerList(iApp, ppchFilters.Ptr, (uint32)ppchFilters.Length, (void*)&pRequestServersResponse);
 		}
 
-		public static HServerListRequest RequestHistoryServerList<T>(AppId_t iApp, Span<MatchMakingKeyValuePair_t*> ppchFilters, in SteamMatchmakingServerListResponseHandler<T> pRequestServersResponse)
-			where T : Object, ISteamMatchmakingServerListResponse
+		public static HServerListRequest RequestHistoryServerList(AppId_t iApp, Span<MatchMakingKeyValuePair_t*> ppchFilters, in SteamMatchmakingServerListResponseHandler pRequestServersResponse)
 		{
 			return _mmservers.RequestFriendsServerList(iApp, ppchFilters.Ptr, (uint32)ppchFilters.Length, (void*)&pRequestServersResponse);
 		}
 
-		public static HServerListRequest RequestSpectatorServerList<T>(AppId_t iApp, Span<MatchMakingKeyValuePair_t*> ppchFilters, in SteamMatchmakingServerListResponseHandler<T> pRequestServersResponse)
-			where T : Object, ISteamMatchmakingServerListResponse
+		public static HServerListRequest RequestSpectatorServerList(AppId_t iApp, Span<MatchMakingKeyValuePair_t*> ppchFilters, in SteamMatchmakingServerListResponseHandler pRequestServersResponse)
 		{
 			return _mmservers.RequestFriendsServerList(iApp, ppchFilters.Ptr, (uint32)ppchFilters.Length, (void*)&pRequestServersResponse);
 		}
@@ -261,20 +254,17 @@ namespace Steam
 			_mmservers.RefreshServer(hRequest, iServer);
 		}
 
-		public static HServerQuery PingServer<T>(uint32 unIP, uint16 usPort, in SteamMatchmakingPingResponseHandler<T> pRequestServersResponse)
-			where T : Object, ISteamMatchmakingPingResponse
+		public static HServerQuery PingServer(uint32 unIP, uint16 usPort, in SteamMatchmakingPingResponseHandler pRequestServersResponse)
 		{
 			return _mmservers.PingServer(unIP, usPort, (void*)&pRequestServersResponse);
 		}
 
-		public static HServerQuery PlayerDetails<T>(uint32 unIP, uint16 usPort, in SteamMatchmakingPlayersResponseHandler<T> pRequestServersResponse)
-			where T : Object, ISteamMatchmakingPlayersResponse
+		public static HServerQuery PlayerDetails(uint32 unIP, uint16 usPort, in SteamMatchmakingPlayersResponseHandler pRequestServersResponse)
 		{
 			return _mmservers.PlayerDetails(unIP, usPort, (void*)&pRequestServersResponse);
 		}
 
-		public static HServerQuery ServerRules<T>(uint32 unIP, uint16 usPort, in SteamMatchmakingRulesResponseHandler<T> pRequestServersResponse)
-			where T : Object, ISteamMatchmakingRulesResponse
+		public static HServerQuery ServerRules(uint32 unIP, uint16 usPort, in SteamMatchmakingRulesResponseHandler pRequestServersResponse)
 		{
 			return _mmservers.ServerRules(unIP, usPort, (void*)&pRequestServersResponse);
 		}
