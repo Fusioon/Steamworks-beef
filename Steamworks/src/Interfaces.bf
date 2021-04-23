@@ -445,54 +445,43 @@ namespace Steamworks
 		[LinkName("SteamAPI_ISteamMatchmaking_SetLinkedLobby")]
 		public extern bool SetLinkedLobby(CSteamID steamIDLobby,CSteamID steamIDLobbyDependent);
 	}
-	public struct ISteamMatchmakingServerListResponse : uint
+	public interface ISteamMatchmakingServerListResponse
 	{
-		[LinkName("SteamAPI_ISteamMatchmakingServerListResponse_ServerResponded")]
-		public extern void ServerResponded(HServerListRequest hRequest,int32 iServer);
-		[LinkName("SteamAPI_ISteamMatchmakingServerListResponse_ServerFailedToRespond")]
-		public extern void ServerFailedToRespond(HServerListRequest hRequest,int32 iServer);
-		[LinkName("SteamAPI_ISteamMatchmakingServerListResponse_RefreshComplete")]
-		public extern void RefreshComplete(HServerListRequest hRequest,EMatchMakingServerResponse response);
+		void ServerResponded(HServerListRequest hRequest,int32 iServer);
+		void ServerFailedToRespond(HServerListRequest hRequest,int32 iServer);
+		void RefreshComplete(HServerListRequest hRequest,EMatchMakingServerResponse response);
 	}
-	public struct ISteamMatchmakingPingResponse : uint
+	public interface ISteamMatchmakingPingResponse
 	{
-		[LinkName("SteamAPI_ISteamMatchmakingPingResponse_ServerResponded")]
-		public extern void ServerResponded(ref gameserveritem_t server);
-		[LinkName("SteamAPI_ISteamMatchmakingPingResponse_ServerFailedToRespond")]
-		public extern void ServerFailedToRespond();
+		void ServerResponded(ref gameserveritem_t server);
+		void ServerFailedToRespond();
 	}
-	public struct ISteamMatchmakingPlayersResponse : uint
+	public interface ISteamMatchmakingPlayersResponse
 	{
-		[LinkName("SteamAPI_ISteamMatchmakingPlayersResponse_AddPlayerToList")]
-		public extern void AddPlayerToList(char8* pchName,int32 nScore,float flTimePlayed);
-		[LinkName("SteamAPI_ISteamMatchmakingPlayersResponse_PlayersFailedToRespond")]
-		public extern void PlayersFailedToRespond();
-		[LinkName("SteamAPI_ISteamMatchmakingPlayersResponse_PlayersRefreshComplete")]
-		public extern void PlayersRefreshComplete();
+		void AddPlayerToList(char8* pchName,int32 nScore,float flTimePlayed);
+		void PlayersFailedToRespond();
+		void PlayersRefreshComplete();
 	}
-	public struct ISteamMatchmakingRulesResponse : uint
+	public interface ISteamMatchmakingRulesResponse
 	{
-		[LinkName("SteamAPI_ISteamMatchmakingRulesResponse_RulesResponded")]
-		public extern void RulesResponded(char8* pchRule,char8* pchValue);
-		[LinkName("SteamAPI_ISteamMatchmakingRulesResponse_RulesFailedToRespond")]
-		public extern void RulesFailedToRespond();
-		[LinkName("SteamAPI_ISteamMatchmakingRulesResponse_RulesRefreshComplete")]
-		public extern void RulesRefreshComplete();
+		void RulesResponded(char8* pchRule,char8* pchValue);
+		void RulesFailedToRespond();
+		void RulesRefreshComplete();
 	}
 	public struct ISteamMatchmakingServers : uint
 	{
 		[LinkName("SteamAPI_ISteamMatchmakingServers_RequestInternetServerList")]
-		public extern HServerListRequest RequestInternetServerList(AppId_t iApp,MatchMakingKeyValuePair_t** ppchFilters,uint32 nFilters,ISteamMatchmakingServerListResponse pRequestServersResponse);
+		public extern HServerListRequest RequestInternetServerList(AppId_t iApp,MatchMakingKeyValuePair_t** ppchFilters,uint32 nFilters,void* pRequestServersResponse);
 		[LinkName("SteamAPI_ISteamMatchmakingServers_RequestLANServerList")]
-		public extern HServerListRequest RequestLANServerList(AppId_t iApp,ISteamMatchmakingServerListResponse pRequestServersResponse);
+		public extern HServerListRequest RequestLANServerList(AppId_t iApp,void* pRequestServersResponse);
 		[LinkName("SteamAPI_ISteamMatchmakingServers_RequestFriendsServerList")]
-		public extern HServerListRequest RequestFriendsServerList(AppId_t iApp,MatchMakingKeyValuePair_t** ppchFilters,uint32 nFilters,ISteamMatchmakingServerListResponse pRequestServersResponse);
+		public extern HServerListRequest RequestFriendsServerList(AppId_t iApp,MatchMakingKeyValuePair_t** ppchFilters,uint32 nFilters,void* pRequestServersResponse);
 		[LinkName("SteamAPI_ISteamMatchmakingServers_RequestFavoritesServerList")]
-		public extern HServerListRequest RequestFavoritesServerList(AppId_t iApp,MatchMakingKeyValuePair_t** ppchFilters,uint32 nFilters,ISteamMatchmakingServerListResponse pRequestServersResponse);
+		public extern HServerListRequest RequestFavoritesServerList(AppId_t iApp,MatchMakingKeyValuePair_t** ppchFilters,uint32 nFilters,void* pRequestServersResponse);
 		[LinkName("SteamAPI_ISteamMatchmakingServers_RequestHistoryServerList")]
-		public extern HServerListRequest RequestHistoryServerList(AppId_t iApp,MatchMakingKeyValuePair_t** ppchFilters,uint32 nFilters,ISteamMatchmakingServerListResponse pRequestServersResponse);
+		public extern HServerListRequest RequestHistoryServerList(AppId_t iApp,MatchMakingKeyValuePair_t** ppchFilters,uint32 nFilters,void* pRequestServersResponse);
 		[LinkName("SteamAPI_ISteamMatchmakingServers_RequestSpectatorServerList")]
-		public extern HServerListRequest RequestSpectatorServerList(AppId_t iApp,MatchMakingKeyValuePair_t** ppchFilters,uint32 nFilters,ISteamMatchmakingServerListResponse pRequestServersResponse);
+		public extern HServerListRequest RequestSpectatorServerList(AppId_t iApp,MatchMakingKeyValuePair_t** ppchFilters,uint32 nFilters,void* pRequestServersResponse);
 		[LinkName("SteamAPI_ISteamMatchmakingServers_ReleaseRequest")]
 		public extern void ReleaseRequest(HServerListRequest hServerListRequest);
 		[LinkName("SteamAPI_ISteamMatchmakingServers_GetServerDetails")]
@@ -508,11 +497,11 @@ namespace Steamworks
 		[LinkName("SteamAPI_ISteamMatchmakingServers_RefreshServer")]
 		public extern void RefreshServer(HServerListRequest hRequest,int32 iServer);
 		[LinkName("SteamAPI_ISteamMatchmakingServers_PingServer")]
-		public extern HServerQuery PingServer(uint32 unIP,uint16 usPort,ISteamMatchmakingPingResponse pRequestServersResponse);
+		public extern HServerQuery PingServer(uint32 unIP,uint16 usPort,void* pRequestServersResponse);
 		[LinkName("SteamAPI_ISteamMatchmakingServers_PlayerDetails")]
-		public extern HServerQuery PlayerDetails(uint32 unIP,uint16 usPort,ISteamMatchmakingPlayersResponse pRequestServersResponse);
+		public extern HServerQuery PlayerDetails(uint32 unIP,uint16 usPort,void* pRequestServersResponse);
 		[LinkName("SteamAPI_ISteamMatchmakingServers_ServerRules")]
-		public extern HServerQuery ServerRules(uint32 unIP,uint16 usPort,ISteamMatchmakingRulesResponse pRequestServersResponse);
+		public extern HServerQuery ServerRules(uint32 unIP,uint16 usPort,void* pRequestServersResponse);
 		[LinkName("SteamAPI_ISteamMatchmakingServers_CancelServerQuery")]
 		public extern void CancelServerQuery(HServerQuery hServerQuery);
 	}

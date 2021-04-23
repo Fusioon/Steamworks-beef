@@ -654,7 +654,7 @@ namespace Steamworks
 			return buf;
 		}
 
-		static void GenerateInterfaceMethods(JArray methods, String buffer)
+		static void GenerateInterfaceMethods(JArray methods, String buffer, bool interfaceOnly)
 		{
 			for(let m in methods)
 			{
@@ -688,9 +688,13 @@ namespace Steamworks
 					{
 					case .Success_Type:
 						{
-							if(argBuff.StartsWith('I') && argBuff.EndsWith('*'))
+							if(argBuff.StartsWith('I'))
 							{
-								argBuff.RemoveFromEnd(1);
+								if(argBuff.EndsWith('*'))
+									argBuff.RemoveFromEnd(1);
+
+								if(argBuff.EndsWith("Response"))
+									argBuff.Set("void*");
 							}
 
 							argsBuf.AppendF($"{argBuff} {pname},");
@@ -704,7 +708,14 @@ namespace Steamworks
 				if(count != 0)
 					argsBuf.RemoveFromEnd(1);
 
-				buffer.AppendF($"\t\t[LinkName(\"{flatname}\")]\n\t\tpublic extern {rtypebf} {name}({argsBuf});\n");
+				if(interfaceOnly)
+				{
+					buffer.AppendF($"\t\t{rtypebf} {name}({argsBuf});\n");
+				}
+				else
+				{
+					buffer.AppendF($"\t\t[LinkName(\"{flatname}\")]\n\t\tpublic extern {rtypebf} {name}({argsBuf});\n");
+				}
 			}
 		}
 
@@ -721,6 +732,13 @@ namespace Steamworks
 			}	
 		}
 
+		static void GeneratePlainInterface(String name, JObject interfaceObj, String buffer)
+		{
+			buffer.AppendF($"\tpublic interface {name}\n\t{{\n");
+			GenerateInterfaceMethods(interfaceObj["methods"].Value.AsArray, buffer, true);
+			buffer.Append("\t}\n");
+		}
+		
 		static String GenerateInterfaces(JArray interfaces)
 		{
 			String buf = new .();
@@ -732,6 +750,13 @@ namespace Steamworks
 			{
 				JObject obj = s.AsObject;
 				String name = obj["classname"].Value.AsString;
+
+				// These interfaces are for retrieving responses from steam and can't be implemented directly in beef
+				if(name.EndsWith("Response"))
+				{
+					GeneratePlainInterface(name, obj, buf);
+					continue;
+				}
 
 				buf.AppendF($"\tpublic struct {name} : uint\n\t{{\n");
 
@@ -746,7 +771,7 @@ namespace Steamworks
 					StructGenerateFields(val.AsArray, buf, null);
 				}
 
-				GenerateInterfaceMethods(obj["methods"].Value.AsArray, buf);
+				GenerateInterfaceMethods(obj["methods"].Value.AsArray, buf, false);
 
 				if(obj["accessors"] case .Ok(let val))
 				{
