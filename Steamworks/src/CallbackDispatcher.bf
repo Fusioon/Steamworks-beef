@@ -191,57 +191,53 @@ namespace Steamworks
 			HSteamPipe hSteamPipe = (isGameServer ? SteamGameServer_GetHSteamPipe() : SteamAPI_GetHSteamPipe());
 			var callbacksRegistry = isGameServer ? _serverCallbacks : _clientCallbacks;
 			SteamAPI_ManualDispatch_RunFrame(hSteamPipe);
-
-			uint8[512] callResultBuffer = ?;
-
 			while(SteamAPI_ManualDispatch_GetNextCallback(hSteamPipe, &callbackMsg))
 			{
-				if(callbackMsg.m_iCallback == SteamAPICallCompleted_t.CALLBACK_ID)
+				CALLBACK_SCOPE:
 				{
-					let callCompletedCb = (SteamAPICallCompleted_t*)callbackMsg.m_pubParam;
-					//uint8* tmpCallResult = scope .[callbackMsg.m_cubParam]*;
-					bool failed = ?;
-					if(SteamAPI_ManualDispatch_GetAPICallResult(hSteamPipe, callCompletedCb.hAsyncCall, &callResultBuffer, (int32)callCompletedCb.cubParam, callCompletedCb.iCallback,  &failed))
+					if(callbackMsg.m_iCallback == SteamAPICallCompleted_t.CALLBACK_ID)
 					{
-						if(_callResults.TryGetValue((uint64)callCompletedCb.hAsyncCall, let callResults))
+						let callCompletedCb = (SteamAPICallCompleted_t*)callbackMsg.m_pubParam;
+						uint8* callResultBuffer = scope:CALLBACK_SCOPE .[callCompletedCb.cubParam]*;
+						bool failed = ?;
+						if(SteamAPI_ManualDispatch_GetAPICallResult(hSteamPipe, callCompletedCb.hAsyncCall, callResultBuffer, (int32)callCompletedCb.cubParam, callCompletedCb.iCallback,  &failed))
 						{
-							using(_monitor.Enter())
+							if(_callResults.TryGetValue((uint64)callCompletedCb.hAsyncCall, let callResults))
 							{
-								for(let cr in callResults)
+								using(_monitor.Enter())
 								{
-									cr.OnRunCallResult(&callResultBuffer, failed, callCompletedCb.hAsyncCall);
-									cr.SetUnregistered();
+									for(let cr in callResults)
+									{
+										cr.OnRunCallResult(callResultBuffer, failed, callCompletedCb.hAsyncCall);
+										cr.SetUnregistered();
+									}
+									callResults.Clear();
 								}
-								callResults.Clear();
 							}
 						}
-					}
 
-				}
-				else
-				{
-					if(callbacksRegistry.TryGetValue(callbackMsg.m_iCallback, let callbacks))
+					}
+					else
 					{
-						CALLBACKS:
+						if(callbacksRegistry.TryGetValue(callbackMsg.m_iCallback, let callbacks))
 						{
-							//Callback[] tmpCallbacks;
-							using(_monitor.Enter())
+							CALLBACKS:
 							{
-								for(let cb in callbacks)
+								Callback[] tmpCallbacks;
+								using(_monitor.Enter())
+								{
+									tmpCallbacks = scope:CALLBACKS Callback[callbacks.Count];
+									callbacks.CopyTo(tmpCallbacks);
+								}
+								for(let cb in tmpCallbacks)
 								{
 									cb.OnRunCallback(callbackMsg.m_pubParam);
 								}
-								/*tmpCallbacks = scope:CALLBACKS Callback[callbacks.Count];
-								callbacks.CopyTo(tmpCallbacks);*/
 							}
-							/*for(let cb in tmpCallbacks)
-							{
-								cb.OnRunCallback(callbackMsg.m_pubParam);
-							}*/	
 						}
 					}
+					SteamAPI_ManualDispatch_FreeLastCallback(hSteamPipe);
 				}
-				SteamAPI_ManualDispatch_FreeLastCallback(hSteamPipe);
 			}
 		}
 
