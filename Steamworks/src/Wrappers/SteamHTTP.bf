@@ -50,25 +50,22 @@ namespace Steamworks
 			unResponseHeaderSize = ?;
 			return _iface.GetHTTPResponseHeaderSize(hRequest, TerminateString!(pchHeaderName), &unResponseHeaderSize);
 		}
-		public static bool GetHTTPResponseHeaderValue(HTTPRequestHandle hRequest, StringView pchHeaderName, out uint8 pHeaderValueBuffer, uint32 unBufferSize)
+		public static bool GetHTTPResponseHeaderValue(HTTPRequestHandle hRequest, StringView pchHeaderName, uint8* pHeaderValueBuffer, uint32 unBufferSize)
 		{
-			pHeaderValueBuffer = ?;
-			return _iface.GetHTTPResponseHeaderValue(hRequest, TerminateString!(pchHeaderName), &pHeaderValueBuffer, unBufferSize);
+			return _iface.GetHTTPResponseHeaderValue(hRequest, TerminateString!(pchHeaderName), pHeaderValueBuffer, unBufferSize);
 		}
 		public static bool GetHTTPResponseBodySize(HTTPRequestHandle hRequest, out uint32 unBodySize)
 		{
 			unBodySize = ?;
 			return _iface.GetHTTPResponseBodySize(hRequest, &unBodySize);
 		}
-		public static bool GetHTTPResponseBodyData(HTTPRequestHandle hRequest, out uint8 pBodyDataBuffer, uint32 unBufferSize)
+		public static bool GetHTTPResponseBodyData(HTTPRequestHandle hRequest, uint8* pBodyDataBuffer, uint32 unBufferSize)
 		{
-			pBodyDataBuffer = ?;
-			return _iface.GetHTTPResponseBodyData(hRequest, &pBodyDataBuffer, unBufferSize);
+			return _iface.GetHTTPResponseBodyData(hRequest, pBodyDataBuffer, unBufferSize);
 		}
-		public static bool GetHTTPStreamingResponseBodyData(HTTPRequestHandle hRequest, uint32 cOffset, out uint8 pBodyDataBuffer, uint32 unBufferSize)
+		public static bool GetHTTPStreamingResponseBodyData(HTTPRequestHandle hRequest, uint32 cOffset, uint8* pBodyDataBuffer, uint32 unBufferSize)
 		{
-			pBodyDataBuffer = ?;
-			return _iface.GetHTTPStreamingResponseBodyData(hRequest, cOffset, &pBodyDataBuffer, unBufferSize);
+			return _iface.GetHTTPStreamingResponseBodyData(hRequest, cOffset, pBodyDataBuffer, unBufferSize);
 		}
 		public static bool ReleaseHTTPRequest(HTTPRequestHandle hRequest)
 		{

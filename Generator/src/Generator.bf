@@ -876,6 +876,8 @@ namespace {(_namespace.IsEmpty ? DEFAULT_NAMESPACE : _namespace)}
 
 		static void GenerateInterfaceWrapperMethod(String buffer, InterfaceInfo interfaceInfo, InterfaceInfo.MethodInfo mi)
 		{
+			const bool GENERATE_OUT_PARAMS = true;
+
 			String methodBody = scope .(128);
 			String args = scope .(128);
 			String callBody = scope .(128);
@@ -890,13 +892,17 @@ namespace {(_namespace.IsEmpty ? DEFAULT_NAMESPACE : _namespace)}
 
 			bool hasReturnType = mi.result.info.typeCode != .Void;
 
-			bool anyTransformation = false;
-
-			bool wasPreviousArgCharPtr = false;
+			bool dontOutNextParam = false;
 
 			for(let a in mi.args)
 			{
-				bool setPrevArgChar = false;
+				bool dontOutNextParamSetThisLoop = false;
+
+				defer
+				{
+					if(!dontOutNextParamSetThisLoop)
+						dontOutNextParam = false;
+				}
 
 				StringView argName = a.name;
 				StringView argType = a.type;
@@ -909,38 +915,60 @@ namespace {(_namespace.IsEmpty ? DEFAULT_NAMESPACE : _namespace)}
 						{
 							args.AppendF($"StringView {argName}, ");
 							callBody.AppendF($"TerminateString!({argName}), ");
-							anyTransformation = true;
 							continue;
 						}
 					}
-					else
+					else if(GENERATE_OUT_PARAMS)
 					{
 						switch(a.info.typeCode)
 						{
 						case .Boolean, .Floating, .Integer:
 							{
-								if(_ == .Integer && wasPreviousArgCharPtr)
-									break;
+								if(dontOutNextParam)
+								{
+									argType.RemoveFromEnd(1);
+									args.AppendF($"ref {argType} {argName}, ");
+									callBody.AppendF($"&{argName}, ");
+									dontOutNextParam = false;
+									continue;
+								}
 
-								if(argName.EndsWith("Dest"))
+								let index = @a.Index + 1;
+								if(index < mi.args.Count)
+								{
+									if(mi.args[index].name.Equals("cubData"))
+									{
+										dontOutNextParam = dontOutNextParamSetThisLoop = true;
+										break;
+									}
+								}
+
+								if(argName.Contains("Dest") || argName.Contains("Buffer"))
+								{
+									dontOutNextParam = dontOutNextParamSetThisLoop = true;
 									break;
+								}	
 
 								argType.RemoveFromEnd(1);
 								args.AppendF($"out {argType} {argName}, ");
 								callBody.AppendF($"&{argName}, ");
 								methodBody.AppendF($"\t\t\t{argName} = ?;\n");
-								anyTransformation = true;
 								continue;
 							}
 
 						case .Character:
 							{
-								setPrevArgChar = true;
-								wasPreviousArgCharPtr = true;
+								dontOutNextParam = dontOutNextParamSetThisLoop = true;
+								break;
 							}
-
 						case .Custom, .Void, .Unknown:
-							break;
+							{
+								if(argName.Contains("Dest") || argName.Contains("Buffer"))
+									dontOutNextParam = dontOutNextParamSetThisLoop = true;
+
+								break;
+
+							}
 						}
 					}
 				}
@@ -963,9 +991,6 @@ namespace {(_namespace.IsEmpty ? DEFAULT_NAMESPACE : _namespace)}
 				args.AppendF($"{argType} {argName}, ");
 				callBody.Append(argName);
 				callBody.Append(", ");
-
-				if(!setPrevArgChar)
-					wasPreviousArgCharPtr = false;
 			}
 
 			if(!args.IsEmpty)
@@ -1004,7 +1029,6 @@ namespace {(_namespace.IsEmpty ? DEFAULT_NAMESPACE : _namespace)}
 					continue;
 				}
 					
-
 				buf.AppendF($"\tpublic static class {name}\n\t{{\n");
 
 				buf.AppendF($"\t\tstatic {info.name} {IFACE_FIELDNAME};\n");

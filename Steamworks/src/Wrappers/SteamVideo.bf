@@ -21,9 +21,9 @@ namespace Steamworks
 		{
 			_iface.GetOPFSettings(unVideoAppID);
 		}
-		public static bool GetOPFStringForApp(AppId_t unVideoAppID, char8* pchBuffer, int32* pnBufferSize)
+		public static bool GetOPFStringForApp(AppId_t unVideoAppID, char8* pchBuffer, ref int32 pnBufferSize)
 		{
-			return _iface.GetOPFStringForApp(unVideoAppID, pchBuffer, pnBufferSize);
+			return _iface.GetOPFStringForApp(unVideoAppID, pchBuffer, &pnBufferSize);
 		}
 	}
 }

@@ -200,15 +200,13 @@ namespace Steamworks
 			pData = ?;
 			return _iface.GetGlobalStat(TerminateString!(pchStatName), &pData);
 		}
-		public static int32 GetGlobalStatHistory(StringView pchStatName, out int64 pData, uint32 cubData)
+		public static int32 GetGlobalStatHistory(StringView pchStatName, int64* pData, uint32 cubData)
 		{
-			pData = ?;
-			return _iface.GetGlobalStatHistory(TerminateString!(pchStatName), &pData, cubData);
+			return _iface.GetGlobalStatHistory(TerminateString!(pchStatName), pData, cubData);
 		}
-		public static int32 GetGlobalStatHistory(StringView pchStatName, out double pData, uint32 cubData)
+		public static int32 GetGlobalStatHistory(StringView pchStatName, double* pData, uint32 cubData)
 		{
-			pData = ?;
-			return _iface.GetGlobalStatHistory(TerminateString!(pchStatName), &pData, cubData);
+			return _iface.GetGlobalStatHistory(TerminateString!(pchStatName), pData, cubData);
 		}
 		public static bool GetAchievementProgressLimits(StringView pchName, out int32 pnMinProgress, out int32 pnMaxProgress)
 		{

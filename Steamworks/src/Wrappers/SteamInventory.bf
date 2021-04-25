@@ -18,9 +18,9 @@ namespace Steamworks
 			punOutItemsArraySize = ?;
 			return _iface.GetResultItems(resultHandle, pOutItemsArray, &punOutItemsArraySize);
 		}
-		public static bool GetResultItemProperty(SteamInventoryResult_t resultHandle, uint32 unItemIndex, StringView pchPropertyName, char8* pchValueBuffer, uint32* punValueBufferSizeOut)
+		public static bool GetResultItemProperty(SteamInventoryResult_t resultHandle, uint32 unItemIndex, StringView pchPropertyName, char8* pchValueBuffer, ref uint32 punValueBufferSizeOut)
 		{
-			return _iface.GetResultItemProperty(resultHandle, unItemIndex, TerminateString!(pchPropertyName), pchValueBuffer, punValueBufferSizeOut);
+			return _iface.GetResultItemProperty(resultHandle, unItemIndex, TerminateString!(pchPropertyName), pchValueBuffer, &punValueBufferSizeOut);
 		}
 		public static uint32 GetResultTimestamp(SteamInventoryResult_t resultHandle)
 		{
@@ -42,9 +42,8 @@ namespace Steamworks
 		{
 			return _iface.GetItemsByID(pResultHandle, pInstanceIDs, unCountInstanceIDs);
 		}
-		public static bool SerializeResult(SteamInventoryResult_t resultHandle, void* pOutBuffer, out uint32 punOutBufferSize)
+		public static bool SerializeResult(SteamInventoryResult_t resultHandle, void* pOutBuffer, ref uint32 punOutBufferSize)
 		{
-			punOutBufferSize = ?;
 			return _iface.SerializeResult(resultHandle, pOutBuffer, &punOutBufferSize);
 		}
 		public static bool DeserializeResult(SteamInventoryResult_t* pOutResultHandle, void* pBuffer, uint32 unBufferSize, bool bRESERVED_MUST_BE_FALSE)
@@ -100,9 +99,9 @@ namespace Steamworks
 			punItemDefIDsArraySize = ?;
 			return _iface.GetItemDefinitionIDs(pItemDefIDs, &punItemDefIDsArraySize);
 		}
-		public static bool GetItemDefinitionProperty(SteamItemDef_t iDefinition, StringView pchPropertyName, char8* pchValueBuffer, uint32* punValueBufferSizeOut)
+		public static bool GetItemDefinitionProperty(SteamItemDef_t iDefinition, StringView pchPropertyName, char8* pchValueBuffer, ref uint32 punValueBufferSizeOut)
 		{
-			return _iface.GetItemDefinitionProperty(iDefinition, TerminateString!(pchPropertyName), pchValueBuffer, punValueBufferSizeOut);
+			return _iface.GetItemDefinitionProperty(iDefinition, TerminateString!(pchPropertyName), pchValueBuffer, &punValueBufferSizeOut);
 		}
 		[NoDiscard]
 		public static SteamAPICall_t RequestEligiblePromoItemDefinitionsIDs(CSteamID steamID)
