@@ -4,6 +4,12 @@ using Steamworks.Interfaces;
 
 namespace Steamworks
 {
+	public function void SteamAPIWarningMessageHook_t(int32 nSeverity, char8* pchDebugText);
+	public function uint32 SteamAPI_CheckCallbackRegistered_t(int32 iCallbackNum);
+}
+
+namespace Steamworks.Native
+{
 	public static
 	{
 		[CLink]
@@ -63,10 +69,5 @@ namespace Steamworks
 		public static extern void SteamAPI_ManualDispatch_Init();
 		[CLink]
 		public static extern void SteamAPI_ManualDispatch_RunFrame(HSteamPipe hSteamPipe);
-
-
-		public function void SteamAPIWarningMessageHook_t(int32 nSeverity, char8* pchDebugText);
-		public function uint32 SteamAPI_CheckCallbackRegistered_t(int32 iCallbackNum);
-
 	}
 }

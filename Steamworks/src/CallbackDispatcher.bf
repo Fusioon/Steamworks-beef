@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Threading;
+using Steamworks.Native;
 
 using internal Steamworks;
 
@@ -290,5 +291,6 @@ namespace Steamworks
 				}
 			}
 		}
+
 	}
 }

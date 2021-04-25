@@ -1,5 +1,6 @@
 using System;
 using Steamworks;
+using Steamworks.Native;
 
 using internal Steamworks;
 
@@ -10,7 +11,10 @@ namespace Steamworks
 		internal static mixin CheckResult(bool b)
 		{
 			if (!b)
+			{
+				System.Diagnostics.Debug.Assert(false, Compiler.CallerExpression[0]);
 				return false;
+			}	
 		}
 	}
 
