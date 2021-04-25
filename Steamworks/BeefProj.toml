@@ -5,24 +5,32 @@ Name = "Steamworks"
 
 [Configs.Debug.Win64]
 LibPaths = ["$(ProjectDir)\\sdk\\redistributable_bin\\win64\\steam_api64.lib"]
+PostBuildCmds = ["CopyToDependents(\"$(ProjectDir)/sdk/redistributable_bin/win64/steam_api64.dll\")"]
 
 [Configs.Debug.Win32]
 LibPaths = ["$(ProjectDir)\\sdk\\redistributable_bin\\steam_api.lib"]
+PostBuildCmds = ["CopyToDependents(\"$(ProjectDir)/sdk/redistributable_bin/steam_api.dll\")"]
 
 [Configs.Release.Win64]
 LibPaths = ["$(ProjectDir)\\sdk\\redistributable_bin\\win64\\steam_api64.lib"]
+PostBuildCmds = ["CopyToDependents(\"$(ProjectDir)/sdk/redistributable_bin/win64/steam_api64.dll\")"]
 
 [Configs.Release.Win32]
 LibPaths = ["$(ProjectDir)\\sdk\\redistributable_bin\\steam_api.lib"]
+PostBuildCmds = ["CopyToDependents(\"$(ProjectDir)/sdk/redistributable_bin/steam_api.dll\")"]
 
 [Configs.Paranoid.Win64]
 LibPaths = ["$(ProjectDir)\\sdk\\redistributable_bin\\win64\\steam_api64.lib"]
+PostBuildCmds = ["CopyToDependents(\"$(ProjectDir)/sdk/redistributable_bin/win64/steam_api64.dll\")"]
 
 [Configs.Paranoid.Win32]
 LibPaths = ["$(ProjectDir)\\sdk\\redistributable_bin\\steam_api.lib"]
+PostBuildCmds = ["CopyToDependents(\"$(ProjectDir)/sdk/redistributable_bin/steam_api.dll\")"]
 
 [Configs.Test.Win64]
 LibPaths = ["$(ProjectDir)\\sdk\\redistributable_bin\\win64\\steam_api64.lib"]
+PostBuildCmds = ["CopyToDependents(\"$(ProjectDir)/sdk/redistributable_bin/win64/steam_api64.dll\")"]
 
 [Configs.Test.Win32]
 LibPaths = ["$(ProjectDir)\\sdk\\redistributable_bin\\steam_api.lib"]
+PostBuildCmds = ["CopyToDependents(\"$(ProjectDir)/sdk/redistributable_bin/steam_api.dll\")"]
