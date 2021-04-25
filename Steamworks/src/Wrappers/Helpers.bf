@@ -6,7 +6,7 @@ namespace Steamworks
 	{
 		static internal mixin TerminateString(StringView str)
 		{
-#if STEAM_AUTO_TERMINATE_STRINGS
+#if STEAMWORKS_AUTO_TERMINATE_STRINGS
 			var str;
 			if(!str.IsNull && (str.Ptr + str.Length) != '\0')
 			{
