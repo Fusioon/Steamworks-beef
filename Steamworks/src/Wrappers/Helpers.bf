@@ -1,6 +1,6 @@
 using System;
 
-namespace Steam
+namespace Steamworks
 {
 	static
 	{

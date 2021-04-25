@@ -1,6 +1,6 @@
 using System;
 
-namespace Steamworks
+namespace Steamworks.Interfaces
 {
 	public struct ISteamClient : uint
 	{

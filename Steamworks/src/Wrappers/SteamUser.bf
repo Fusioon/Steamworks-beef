@@ -1,173 +1,151 @@
 using System;
 using Steamworks;
-
-using internal Steam;
-
-namespace Steam
+using Steamworks.Interfaces;
+using internal Steamworks;
+namespace Steamworks
 {
 	public static class SteamUser
 	{
-		static ISteamUser _user;
-		internal static bool Init()
+		static ISteamUser _iface;
+		internal static bool APIInit_User() => (_iface = Accessors.SteamUser()) != 0;
+		public static HSteamUser GetHSteamUser()
 		{
-			return (_user = Accessors.SteamUser()) != 0;
+			return _iface.GetHSteamUser();
 		}
-
-		public static void AdvertiseGame(CSteamID steamIDGameServer, uint32 unIPServer, uint16 usPortServer)
+		public static bool BLoggedOn()
 		{
-			_user.AdvertiseGame(steamIDGameServer, unIPServer, usPortServer);
+			return _iface.BLoggedOn();
 		}
-
-		public static EBeginAuthSessionResult BeginAuthSession(void* pAuthTicket, int32 cbAuthTicket, CSteamID steamID)
+		public static CSteamID GetSteamID()
 		{
-			return _user.BeginAuthSession(pAuthTicket, cbAuthTicket, steamID);
+			return _iface.GetSteamID();
 		}
-
-		public static bool IsBehindNAT()
+		public static int32 InitiateGameConnection(void* pAuthBlob, int32 cbMaxAuthBlob, CSteamID steamIDGameServer, uint32 unIPServer, uint16 usPortServer, bool bSecure)
 		{
-			return _user.BIsBehindNAT();
+			return _iface.InitiateGameConnection(pAuthBlob, cbMaxAuthBlob, steamIDGameServer, unIPServer, usPortServer, bSecure);
 		}
-
-		public static bool IsPhoneIdentifying()
+		public static void TerminateGameConnection(uint32 unIPServer, uint16 usPortServer)
 		{
-			return _user.BIsPhoneIdentifying();
+			_iface.TerminateGameConnection(unIPServer, usPortServer);
 		}
-
-		public static bool IsPhoneRequiringVerification()
+		public static void TrackAppUsageEvent(CGameID gameID, int32 eAppUsageEvent, StringView pchExtraInfo)
 		{
-			return _user.BIsPhoneRequiringVerification();
+			_iface.TrackAppUsageEvent(gameID, eAppUsageEvent, TerminateString!(pchExtraInfo));
 		}
-
-		public static bool IsPhoneVerified()
+		public static bool GetUserDataFolder(char8* pchBuffer, int32 cubBuffer)
 		{
-			return _user.BIsPhoneVerified();
+			return _iface.GetUserDataFolder(pchBuffer, cubBuffer);
 		}
-
-		public static bool IsTwoFactorEnabled()
+		public static void StartVoiceRecording()
 		{
-			return _user.BIsTwoFactorEnabled();
+			_iface.StartVoiceRecording();
 		}
-
-		public static bool LoggedOn()
+		public static void StopVoiceRecording()
 		{
-			return _user.BLoggedOn();
+			_iface.StopVoiceRecording();
 		}
-
-		public static bool BSetDurationControlOnlineState(EDurationControlOnlineState eNewState)
+		public static EVoiceResult GetAvailableVoice(out uint32 pcbCompressed, out uint32 pcbUncompressed_Deprecated, uint32 nUncompressedVoiceDesiredSampleRate_Deprecated)
 		{
-			return _user.BSetDurationControlOnlineState(eNewState);
+			pcbCompressed = ?;
+			pcbUncompressed_Deprecated = ?;
+			return _iface.GetAvailableVoice(&pcbCompressed, &pcbUncompressed_Deprecated, nUncompressedVoiceDesiredSampleRate_Deprecated);
 		}
-
-		public static void CancelAuthTicket(HAuthTicket hAuthTicket)
+		public static EVoiceResult GetVoice(bool bWantCompressed, void* pDestBuffer, uint32 cbDestBufferSize, out uint32 nBytesWritten, bool bWantUncompressed_Deprecated, void* pUncompressedDestBuffer_Deprecated, uint32 cbUncompressedDestBufferSize_Deprecated, out uint32 nUncompressBytesWritten_Deprecated, uint32 nUncompressedVoiceDesiredSampleRate_Deprecated)
 		{
-			_user.CancelAuthTicket(hAuthTicket);
+			nBytesWritten = ?;
+			nUncompressBytesWritten_Deprecated = ?;
+			return _iface.GetVoice(bWantCompressed, pDestBuffer, cbDestBufferSize, &nBytesWritten, bWantUncompressed_Deprecated, pUncompressedDestBuffer_Deprecated, cbUncompressedDestBufferSize_Deprecated, &nUncompressBytesWritten_Deprecated, nUncompressedVoiceDesiredSampleRate_Deprecated);
 		}
-
 		public static EVoiceResult DecompressVoice(void* pCompressed, uint32 cbCompressed, void* pDestBuffer, uint32 cbDestBufferSize, out uint32 nBytesWritten, uint32 nDesiredSampleRate)
 		{
 			nBytesWritten = ?;
-			return _user.DecompressVoice(pCompressed, cbCompressed, pDestBuffer, cbDestBufferSize, &nBytesWritten, nDesiredSampleRate);
+			return _iface.DecompressVoice(pCompressed, cbCompressed, pDestBuffer, cbDestBufferSize, &nBytesWritten, nDesiredSampleRate);
 		}
-
-		public static void EndAuthSession(CSteamID steamID)
-		{
-			_user.EndAuthSession(steamID);
-		}
-
-		public static HAuthTicket GetAuthSessionTicket(void* pTicket, int32 cbMaxTicket, uint32* pcbTicket)
-		{
-			return _user.GetAuthSessionTicket(pTicket, cbMaxTicket, pcbTicket);
-		}
-
-		public static EVoiceResult GetAvailableVoice(uint32* pcbCompressed)
-		{
-			return _user.GetAvailableVoice(pcbCompressed, null, 0);
-		}
-
-		[NoDiscard]
-		public static SteamAPICall_t GetDurationControl()
-		{
-			return _user.GetDurationControl();
-		}
-
-		public static bool GetEncryptedAppTicket(void* pTicket, int32 cbMaxTicket, uint32* pcbTicket)
-		{
-			return _user.GetEncryptedAppTicket(pTicket, cbMaxTicket, pcbTicket);
-		}
-
-		public static int32 GetGameBadgeLevel(int32 nSeries, bool bFoil)
-		{
-			return _user.GetGameBadgeLevel(nSeries, bFoil);
-		}
-
-		public static int32 GetPlayerSteamLevel()
-		{
-			return _user.GetPlayerSteamLevel();
-		}
-
-		public static CSteamID GetSteamID()
-		{
-			return _user.GetSteamID();
-		}
-
-		[Obsolete("You should use the Steam Cloud API from ISteamRemoteStorage instead.", false)]
-		public static bool GetUserDataFolder(Span<char8> buffer)
-		{
-			return _user.GetUserDataFolder(buffer.Ptr, (.)buffer.Length);
-		}
-
-		public static EVoiceResult GetVoice(bool bWantCompressed, void* pDestBuffer, uint32 cbDestBufferSize, out uint32 nBytesWritten)
-		{
-			nBytesWritten = ?;
-			return _user.GetVoice(bWantCompressed, pDestBuffer, cbDestBufferSize, &nBytesWritten, false, null, 0, null, 0);
-		}
-
 		public static uint32 GetVoiceOptimalSampleRate()
 		{
-			return _user.GetVoiceOptimalSampleRate();
+			return _iface.GetVoiceOptimalSampleRate();
 		}
-
-		public static int32 InitiateGameConnection(void* pAuthBlob, int32 cbMaxAuthBlob, CSteamID steamIDGameServer, uint32 unIPServer, uint16 usPortServer, bool bSecure)
+		public static HAuthTicket GetAuthSessionTicket(void* pTicket, int32 cbMaxTicket, out uint32 pcbTicket)
 		{
-			return _user.InitiateGameConnection(pAuthBlob, cbMaxAuthBlob, steamIDGameServer, unIPServer, usPortServer, bSecure);
+			pcbTicket = ?;
+			return _iface.GetAuthSessionTicket(pTicket, cbMaxTicket, &pcbTicket);
 		}
-
+		public static EBeginAuthSessionResult BeginAuthSession(void* pAuthTicket, int32 cbAuthTicket, CSteamID steamID)
+		{
+			return _iface.BeginAuthSession(pAuthTicket, cbAuthTicket, steamID);
+		}
+		public static void EndAuthSession(CSteamID steamID)
+		{
+			_iface.EndAuthSession(steamID);
+		}
+		public static void CancelAuthTicket(HAuthTicket hAuthTicket)
+		{
+			_iface.CancelAuthTicket(hAuthTicket);
+		}
+		public static EUserHasLicenseForAppResult UserHasLicenseForApp(CSteamID steamID, AppId_t appID)
+		{
+			return _iface.UserHasLicenseForApp(steamID, appID);
+		}
+		public static bool BIsBehindNAT()
+		{
+			return _iface.BIsBehindNAT();
+		}
+		public static void AdvertiseGame(CSteamID steamIDGameServer, uint32 unIPServer, uint16 usPortServer)
+		{
+			_iface.AdvertiseGame(steamIDGameServer, unIPServer, usPortServer);
+		}
 		[NoDiscard]
 		public static SteamAPICall_t RequestEncryptedAppTicket(void* pDataToInclude, int32 cbDataToInclude)
 		{
-			return _user.RequestEncryptedAppTicket(pDataToInclude, cbDataToInclude);
+			return _iface.RequestEncryptedAppTicket(pDataToInclude, cbDataToInclude);
 		}
-
+		public static bool GetEncryptedAppTicket(void* pTicket, int32 cbMaxTicket, out uint32 pcbTicket)
+		{
+			pcbTicket = ?;
+			return _iface.GetEncryptedAppTicket(pTicket, cbMaxTicket, &pcbTicket);
+		}
+		public static int32 GetGameBadgeLevel(int32 nSeries, bool bFoil)
+		{
+			return _iface.GetGameBadgeLevel(nSeries, bFoil);
+		}
+		public static int32 GetPlayerSteamLevel()
+		{
+			return _iface.GetPlayerSteamLevel();
+		}
 		[NoDiscard]
 		public static SteamAPICall_t RequestStoreAuthURL(StringView pchRedirectURL)
 		{
-			return _user.RequestStoreAuthURL(TerminateString!(pchRedirectURL));
+			return _iface.RequestStoreAuthURL(TerminateString!(pchRedirectURL));
 		}
-
-		public static void StartVoiceRecording()
+		public static bool BIsPhoneVerified()
 		{
-			_user.StartVoiceRecording();
+			return _iface.BIsPhoneVerified();
 		}
-
-		public static void StopVoiceRecording()
+		public static bool BIsTwoFactorEnabled()
 		{
-			_user.StopVoiceRecording();
+			return _iface.BIsTwoFactorEnabled();
 		}
-
-		public static void TerminateGameConnection(uint32 unIPServer, uint16 usPortServer)
+		public static bool BIsPhoneIdentifying()
 		{
-			_user.TerminateGameConnection(unIPServer, usPortServer);
+			return _iface.BIsPhoneIdentifying();
 		}
-
-		[Obsolete("Only used by only a few games to track usage events before Stats and Achievements was introduced.", false)]
-		public static void TrackAppUsageEvent(CGameID gameID, int32 eAppUsageEvent, StringView pchExtraInfo = default)
+		public static bool BIsPhoneRequiringVerification()
 		{
-			_user.TrackAppUsageEvent(gameID, eAppUsageEvent, TerminateString!(pchExtraInfo));
+			return _iface.BIsPhoneRequiringVerification();
 		}
-
-		public static EUserHasLicenseForAppResult UserHasLicenseForApp(CSteamID steamID, AppId_t appID)
+		[NoDiscard]
+		public static SteamAPICall_t GetMarketEligibility()
 		{
-			return _user.UserHasLicenseForApp(steamID, appID);
+			return _iface.GetMarketEligibility();
+		}
+		[NoDiscard]
+		public static SteamAPICall_t GetDurationControl()
+		{
+			return _iface.GetDurationControl();
+		}
+		public static bool BSetDurationControlOnlineState(EDurationControlOnlineState eNewState)
+		{
+			return _iface.BSetDurationControlOnlineState(eNewState);
 		}
 	}
 }

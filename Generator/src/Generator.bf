@@ -5,9 +5,46 @@ using JSONReader;
 using System.Collections;
 namespace Generator
 {
+	class InterfaceInfo
+	{
+		public enum EIntefaceType
+		{
+			Unknown = 0x00,
+			User = 0x01,
+			Server = 0x02
+		}
+
+		public class MethodInfo
+		{
+			public StringView name;
+			public (String name, TypeInfo info) result;
+			public List<(StringView name, String type, TypeInfo info)> args =  new .() ~ delete _;
+
+			public ~this()
+			{
+				delete result.name;
+
+				for(let a in args)
+					delete a.type;
+			}
+		}
+
+		public StringView name;
+		public StringView[2] accessors;
+		public EIntefaceType type;
+		public List<MethodInfo> methods = new .() ~ delete _;
+		public Dictionary<String, String> generatedEnums ~ delete _;
+		public ~this()
+		{
+			for(let m in methods)
+				delete m;
+		}
+	}
+
 	class Generator
 	{
 		const bool TRANSFORM_ENUM_VALUE_NAMES = true;
+		const String DEFAULT_NAMESPACE = "Steamworks";
 
 		static HashSet<String> builtinTypes = new .()
 		{
@@ -32,14 +69,14 @@ namespace Generator
 			"size_t",
 		} ~ delete _;
 
-		static void AppendHeader(String buffer)
+		static void AppendHeader(String buffer, StringView usings = default, StringView _namespace = default)
 		{
-			buffer.Append
-				("""
+			buffer.AppendF
+				($"""
 using System;
-
-namespace Steamworks
-{
+{usings}
+namespace {(_namespace.IsEmpty ? DEFAULT_NAMESPACE : _namespace)}
+{{
 
 """);
 		}
@@ -654,8 +691,9 @@ namespace Steamworks
 			return buf;
 		}
 
-		static void GenerateInterfaceMethods(JArray methods, String buffer, bool interfaceOnly)
+		static void GenerateInterfaceMethods(JArray methods, String buffer, bool interfaceOnly, List<InterfaceInfo.MethodInfo> minfo)
 		{
+			bool generateMInfo = minfo != null;
 			for(let m in methods)
 			{
 				JObject obj = m.AsObject;
@@ -666,9 +704,19 @@ namespace Steamworks
 
 				String rtypebf = scope .(32);
 
-				switch(TypeParser.ParseType(rtype, rtypebf, null, ?))
+				InterfaceInfo.MethodInfo info = ?;
+				if(generateMInfo)
+				{
+					info = minfo.Add(.. new .());
+					info.name = name;
+				}
+				
+
+				switch(TypeParser.ParseType(rtype, rtypebf, null, let typeInfo))
 				{
 				case .Success_Type:
+					if(generateMInfo)
+						info.result = (new String(rtypebf), typeInfo);
 					break;
 
 				case .Success_Function, .Error:
@@ -684,21 +732,29 @@ namespace Steamworks
 					String pname = po["paramname"].Value.AsString;
 					String ptype = po["paramtype"].Value.AsString;
 					String argBuff = scope .(32);
-					switch(TypeParser.ParseType(ptype, argBuff, null, ?))
+					switch(TypeParser.ParseType(ptype, argBuff, null, var typeInfo))
 					{
 					case .Success_Type:
 						{
 							if(argBuff.StartsWith('I'))
 							{
 								if(argBuff.EndsWith('*'))
+								{
 									argBuff.RemoveFromEnd(1);
+									typeInfo.pointerDepth--;
+								}	
 
 								if(argBuff.EndsWith("Response"))
+								{
 									argBuff.Set("void*");
+								}	
 							}
 
 							argsBuf.AppendF($"{argBuff} {pname},");
 							count++;
+
+							if(generateMInfo)
+								info.args.Add((pname, new String(argBuff), typeInfo));
 						}
 
 					case .Success_Function, .Error:
@@ -719,14 +775,26 @@ namespace Steamworks
 			}
 		}
 
-		static void GenerateInterfaceAccesors(JArray accessors, String buffer, String interfaceName)
+		static void GenerateInterfaceAccesors(JArray accessors, String buffer, String interfaceName, InterfaceInfo info)
 		{
 			for(let a in accessors)
 			{
 				JObject obj = a.AsObject;
 				String kind = obj["kind"].Value.AsString;
+
 				String name = obj["name"].Value.AsString;
 				String flatname = obj["name_flat"].Value.AsString;
+
+				if(kind.CompareTo("user") == 0)
+				{
+					info.accessors[0] = name;
+					info.type |= .User;
+				}
+				if(kind.CompareTo("gameserver") == 0)
+				{
+					info.accessors[1] = name;
+					info.type |= .Server;
+				}
 
 				buffer.AppendF($"\t\t[LinkName(\"{flatname}\")]\n\t\tpublic static extern {interfaceName} {name}();\n");
 			}	
@@ -735,14 +803,14 @@ namespace Steamworks
 		static void GeneratePlainInterface(String name, JObject interfaceObj, String buffer)
 		{
 			buffer.AppendF($"\tpublic interface {name}\n\t{{\n");
-			GenerateInterfaceMethods(interfaceObj["methods"].Value.AsArray, buffer, true);
+			GenerateInterfaceMethods(interfaceObj["methods"].Value.AsArray, buffer, true, null);
 			buffer.Append("\t}\n");
 		}
 		
-		static String GenerateInterfaces(JArray interfaces)
+		static String GenerateInterfaces(JArray interfaces, List<InterfaceInfo> infos)
 		{
 			String buf = new .();
-			AppendHeader(buf);
+			AppendHeader(buf, default, scope $"{DEFAULT_NAMESPACE}.Interfaces");
 
 			String accessors = scope .();
 			
@@ -760,10 +828,13 @@ namespace Steamworks
 
 				buf.AppendF($"\tpublic struct {name} : uint\n\t{{\n");
 
+				InterfaceInfo info = new .();
+				info.name = name;
+
 				if(obj["enums"] case .Ok(let val))
 				{
-					Dictionary<String, String> generatedEnums = scope .();
-					StructGenerateEnums(val.AsArray, buf, generatedEnums, 2);
+					info.generatedEnums = new .();
+					StructGenerateEnums(val.AsArray, buf, info.generatedEnums, 2);
 				}
 
 				if(obj["fields"] case .Ok(let val))
@@ -771,17 +842,27 @@ namespace Steamworks
 					StructGenerateFields(val.AsArray, buf, null);
 				}
 
-				GenerateInterfaceMethods(obj["methods"].Value.AsArray, buf, false);
-
+				
 				if(obj["accessors"] case .Ok(let val))
 				{
-					GenerateInterfaceAccesors(val.AsArray, accessors, name);
+					GenerateInterfaceAccesors(val.AsArray, accessors, name, info);
 				}
 				else
 				{
 					Console.WriteLine($"Interface '{name}' doesn't have an accessor method!");
 				}
+				if(info.type == .Unknown)
+				{
+					delete info;
+					info = null;
+				}
+				else
+				{
+					infos.Add(info);
+				}
 
+				GenerateInterfaceMethods(obj["methods"].Value.AsArray, buf, false, info?.methods);
+				
 				buf.Append("\t}\n");
 			}
 
@@ -789,6 +870,166 @@ namespace Steamworks
 
 			AppendFooter(buf);
 			return buf;
+		}
+
+		const String IFACE_FIELDNAME = "_iface";
+
+		static void GenerateInterfaceWrapperMethod(String buffer, InterfaceInfo interfaceInfo, InterfaceInfo.MethodInfo mi)
+		{
+			String methodBody = scope .(128);
+			String args = scope .(128);
+			String callBody = scope .(128);
+
+			buffer.Append("\t\t");
+			StringView resultType = mi.result.name;
+
+			if(resultType == "SteamAPICall_t")
+			{
+				buffer.Append("[NoDiscard]\n\t\t");
+			}
+
+			bool hasReturnType = mi.result.info.typeCode != .Void;
+
+			bool anyTransformation = false;
+
+			bool wasPreviousArgCharPtr = false;
+
+			for(let a in mi.args)
+			{
+				bool setPrevArgChar = false;
+
+				StringView argName = a.name;
+				StringView argType = a.type;
+
+				if(a.info.pointerDepth == 1)
+				{
+					if(a.info.isConst)
+					{
+						if(a.info.typeCode == .Character)
+						{
+							args.AppendF($"StringView {argName}, ");
+							callBody.AppendF($"TerminateString!({argName}), ");
+							anyTransformation = true;
+							continue;
+						}
+					}
+					else
+					{
+						switch(a.info.typeCode)
+						{
+						case .Boolean, .Floating, .Integer:
+							{
+								if(_ == .Integer && wasPreviousArgCharPtr)
+									break;
+
+								if(argName.EndsWith("Dest"))
+									break;
+
+								argType.RemoveFromEnd(1);
+								args.AppendF($"out {argType} {argName}, ");
+								callBody.AppendF($"&{argName}, ");
+								methodBody.AppendF($"\t\t\t{argName} = ?;\n");
+								anyTransformation = true;
+								continue;
+							}
+
+						case .Character:
+							{
+								setPrevArgChar = true;
+								wasPreviousArgCharPtr = true;
+							}
+
+						case .Custom, .Void, .Unknown:
+							break;
+						}
+					}
+				}
+
+				if(a.info.isReference && !a.info.isConst)
+					callBody.Append("ref ");
+
+				if(interfaceInfo.generatedEnums != null && argType.StartsWith('E'))
+				{
+					for(let ge in interfaceInfo.generatedEnums.Values)
+					{
+						if(ge == argType)
+						{
+							args.AppendF($"{interfaceInfo.name}.");
+							break;
+						}
+					}
+				}
+
+				args.AppendF($"{argType} {argName}, ");
+				callBody.Append(argName);
+				callBody.Append(", ");
+
+				if(!setPrevArgChar)
+					wasPreviousArgCharPtr = false;
+			}
+
+			if(!args.IsEmpty)
+				args.RemoveFromEnd(2);
+
+			if(!callBody.IsEmpty)
+				callBody.RemoveFromEnd(2);
+
+
+			if(mi.result.info.typeCode == .Character && mi.result.info.pointerDepth == 1)
+			{
+				buffer.AppendF($"public static StringView {mi.name}({args})\n\t\t{{\n{methodBody}\t\t\treturn StringView({IFACE_FIELDNAME}.{mi.name}({callBody}));\n\t\t}}\n");
+				return;
+			}
+
+			buffer.AppendF($"public static {mi.result.name} {mi.name}({args})\n\t\t{{\n{methodBody}\t\t\t{(hasReturnType ? "return " : "")}{IFACE_FIELDNAME}.{mi.name}({callBody});\n\t\t}}\n");
+		}
+
+		static void GenerateInterfaceWrappers(String outDirPath, String buf, List<InterfaceInfo> infos)
+		{
+			String userWrappers = scope .();
+			String serverWrappers = scope .();
+
+			for(let info in infos)
+			{
+				buf.Clear();
+				AppendHeader(buf, "using Steamworks;\nusing Steamworks.Interfaces;\nusing internal Steamworks;");
+				StringView name = info.name;
+				if(name[0] == 'I')
+					name = name.Substring(1);
+
+				// We have a custom implementation for this interface
+				if(name == "SteamMatchmakingServers")
+				{
+					userWrappers.AppendF($"CheckResult!({name}.APIInit_User());\n");
+					continue;
+				}
+					
+
+				buf.AppendF($"\tpublic static class {name}\n\t{{\n");
+
+				buf.AppendF($"\t\tstatic {info.name} {IFACE_FIELDNAME};\n");
+				if(info.type.HasFlag(.User))
+				{
+					userWrappers.AppendF($"CheckResult!({name}.APIInit_User());\n");
+					buf.AppendF($"\t\tinternal static bool APIInit_User() => (_iface = Accessors.{info.accessors[0]}()) != 0;\n");
+				}
+				if(info.type.HasFlag(.Server))
+				{
+					serverWrappers.AppendF($"CheckResult!({name}.APIInit_Server());\n");
+					buf.AppendF($"\t\tinternal static bool APIInit_Server() => (_iface = Accessors.{info.accessors[1]}()) != 0;\n");
+				}	
+
+				for(let mi in info.methods)
+				{
+					GenerateInterfaceWrapperMethod(buf, info, mi);
+				}
+
+				buf.Append("\t}");
+				AppendFooter(buf);
+				let path = Path.InternalCombine(.. scope .(), outDirPath, "Wrappers", scope $"{name}.bf");
+				File.WriteAllText(path, buf);
+			}
+
 		}
 
 		public static Result<void> GenerateFromJObject(JObject json, String outDirPath)
@@ -837,9 +1078,16 @@ namespace Steamworks
 
 			// INTEFACES
 			{
-				let interfaces = GenerateInterfaces(json["interfaces"].Value.AsArray);
+				List<InterfaceInfo> infos = scope .();
+				let interfaces = GenerateInterfaces(json["interfaces"].Value.AsArray, infos);
 				File.WriteAllText(Path.InternalCombine(.. scope .(), outDirPath, "Interfaces.bf"), interfaces);
+
+				GenerateInterfaceWrappers(outDirPath, interfaces, infos);
+				for(let ii in infos)
+					delete ii;
+
 				delete interfaces;
+
 			}
 
 

@@ -1,175 +1,146 @@
 using System;
 using Steamworks;
-
-using internal Steam;
-
-namespace Steam
+using Steamworks.Interfaces;
+using internal Steamworks;
+namespace Steamworks
 {
 	public static class SteamUtils
 	{
-		static ISteamUtils _utils;
-		internal static bool Init()
-		{
-			return (_utils = Accessors.SteamUtils()) != 0;
-		}
-
-		public static bool OverlayNeedsPresent()
-		{
-			return _utils.BOverlayNeedsPresent();
-		}
-
-		[NoDiscard]
-		public static SteamAPICall_t CheckFileSignature(StringView szFileName)
-		{
-			return _utils.CheckFileSignature(TerminateString!(szFileName));
-		}
-
-		public static ESteamAPICallFailure GetAPICallFailureReason(SteamAPICall_t hSteamAPICall)
-		{
-			return _utils.GetAPICallFailureReason(hSteamAPICall);
-		}
-
-		public static bool GetAPICallResult(SteamAPICall_t hSteamAPICall, void* pCallback, int32 cubCallback, int32 iCallbackExpected, out bool pbFailed)
-		{
-			pbFailed = ?;
-			return _utils.GetAPICallResult(hSteamAPICall, pCallback, cubCallback, iCallbackExpected, &pbFailed);
-		}
-
-		public static AppId_t GetAppID()
-		{
-			return (AppId_t)_utils.GetAppID();
-		}
-
-		public static EUniverse GetConnectedUniverse()
-		{
-			return _utils.GetConnectedUniverse();
-		}
-
-		public static uint8 GetCurrentBatteryPower()
-		{
-			return _utils.GetCurrentBatteryPower();
-		}
-
-		public static bool GetEnteredGamepadTextInput(Span<char8> buffer)
-		{
-			return _utils.GetEnteredGamepadTextInput(buffer.Ptr, (.)buffer.Length);
-		}
-
-		public static uint32 GetEnteredGamepadTextLength()
-		{
-			return _utils.GetEnteredGamepadTextLength();
-		}
-
-		public static bool GetImageRGBA(int32 iImage, Span<uint8> buffer)
-		{
-			return _utils.GetImageRGBA(iImage, buffer.Ptr, (.)buffer.Length);
-		}
-
-		public static bool GetImageSize(int32 iImage, out uint32 width, out uint32 height)
-		{
-			width = height = ?;
-			return _utils.GetImageSize(iImage, &width, &height);
-		}
-
-		public static uint32 GetIPCCallCount()
-		{
-			return _utils.GetIPCCallCount();
-		}
-
-		public static StringView GetIPCountry()
-		{
-			return StringView(_utils.GetIPCountry(), 2);
-		}
-
+		static ISteamUtils _iface;
+		internal static bool APIInit_User() => (_iface = Accessors.SteamUtils()) != 0;
+		internal static bool APIInit_Server() => (_iface = Accessors.SteamGameServerUtils()) != 0;
 		public static uint32 GetSecondsSinceAppActive()
 		{
-			return _utils.GetSecondsSinceAppActive();
+			return _iface.GetSecondsSinceAppActive();
 		}
-
 		public static uint32 GetSecondsSinceComputerActive()
 		{
-			return _utils.GetSecondsSinceComputerActive();
+			return _iface.GetSecondsSinceComputerActive();
 		}
-
+		public static EUniverse GetConnectedUniverse()
+		{
+			return _iface.GetConnectedUniverse();
+		}
 		public static uint32 GetServerRealTime()
 		{
-			return _utils.GetServerRealTime();
+			return _iface.GetServerRealTime();
 		}
-
-		public static StringView GetSteamUILanguage()
+		public static StringView GetIPCountry()
 		{
-			return StringView(_utils.GetSteamUILanguage());
+			return StringView(_iface.GetIPCountry());
 		}
-
+		public static bool GetImageSize(int32 iImage, out uint32 pnWidth, out uint32 pnHeight)
+		{
+			pnWidth = ?;
+			pnHeight = ?;
+			return _iface.GetImageSize(iImage, &pnWidth, &pnHeight);
+		}
+		public static bool GetImageRGBA(int32 iImage, uint8* pubDest, int32 nDestBufferSize)
+		{
+			return _iface.GetImageRGBA(iImage, pubDest, nDestBufferSize);
+		}
+		public static uint8 GetCurrentBatteryPower()
+		{
+			return _iface.GetCurrentBatteryPower();
+		}
+		public static uint32 GetAppID()
+		{
+			return _iface.GetAppID();
+		}
+		public static void SetOverlayNotificationPosition(ENotificationPosition eNotificationPosition)
+		{
+			_iface.SetOverlayNotificationPosition(eNotificationPosition);
+		}
 		public static bool IsAPICallCompleted(SteamAPICall_t hSteamAPICall, out bool pbFailed)
 		{
 			pbFailed = ?;
-			return _utils.IsAPICallCompleted(hSteamAPICall, &pbFailed);
+			return _iface.IsAPICallCompleted(hSteamAPICall, &pbFailed);
 		}
-
-		public static bool IsOverlayEnabled()
+		public static ESteamAPICallFailure GetAPICallFailureReason(SteamAPICall_t hSteamAPICall)
 		{
-			return _utils.IsOverlayEnabled();
+			return _iface.GetAPICallFailureReason(hSteamAPICall);
 		}
-
-		public static bool IsSteamChinaLauncher()
+		public static bool GetAPICallResult(SteamAPICall_t hSteamAPICall, void* pCallback, int32 cubCallback, int32 iCallbackExpected, out bool pbFailed)
 		{
-			return _utils.IsSteamChinaLauncher();
+			pbFailed = ?;
+			return _iface.GetAPICallResult(hSteamAPICall, pCallback, cubCallback, iCallbackExpected, &pbFailed);
 		}
-
-		public static bool InitFilterText(uint32 unFilterOptions)
+		public static uint32 GetIPCCallCount()
 		{
-			return _utils.InitFilterText(unFilterOptions);
+			return _iface.GetIPCCallCount();
 		}
-
-		public static int32 FilterText(ETextFilteringContext eContext, CSteamID sourceSteamID, StringView pchInputMessage, Span<char8> pchOutFilteredText)
-		{
-			return _utils.FilterText(eContext, sourceSteamID, TerminateString!(pchInputMessage), pchOutFilteredText.Ptr, (.)pchOutFilteredText.Length);
-		}
-
-		public static bool IsSteamInBigPictureMode()
-		{
-			return _utils.IsSteamInBigPictureMode();
-		}
-
-		public static bool IsSteamRunningInVR()
-		{
-			return _utils.IsSteamRunningInVR();
-		}
-
-		public static bool IsVRHeadsetStreamingEnabled()
-		{
-			return _utils.IsVRHeadsetStreamingEnabled();
-		}
-
-		public static void SetOverlayNotificationInset(int32 nHorizontalInset, int32 nVerticalInset)
-		{
-			_utils.SetOverlayNotificationInset(nHorizontalInset, nVerticalInset);
-		}
-
-		public static void SetOverlayNotificationPosition(ENotificationPosition eNotificationPosition)
-		{
-			_utils.SetOverlayNotificationPosition(eNotificationPosition);
-		}
-
-		public static void SetVRHeadsetStreamingEnabled(bool bEnabled)
-		{
-			_utils.SetVRHeadsetStreamingEnabled(bEnabled);
-		}
-
 		public static void SetWarningMessageHook(SteamAPIWarningMessageHook_t pFunction)
 		{
-			_utils.SetWarningMessageHook(pFunction);
+			_iface.SetWarningMessageHook(pFunction);
 		}
-
-		public static bool ShowGamepadTextInput(EGamepadTextInputMode eInputMode, EGamepadTextInputLineMode eLineInputMode, StringView pchDescription, uint32 unCharMax, StringView chExistingText)
+		public static bool IsOverlayEnabled()
 		{
-			return _utils.ShowGamepadTextInput(eInputMode, eLineInputMode, TerminateString!(pchDescription), unCharMax, TerminateString!(chExistingText));
+			return _iface.IsOverlayEnabled();
 		}
-
+		public static bool BOverlayNeedsPresent()
+		{
+			return _iface.BOverlayNeedsPresent();
+		}
+		[NoDiscard]
+		public static SteamAPICall_t CheckFileSignature(StringView szFileName)
+		{
+			return _iface.CheckFileSignature(TerminateString!(szFileName));
+		}
+		public static bool ShowGamepadTextInput(EGamepadTextInputMode eInputMode, EGamepadTextInputLineMode eLineInputMode, StringView pchDescription, uint32 unCharMax, StringView pchExistingText)
+		{
+			return _iface.ShowGamepadTextInput(eInputMode, eLineInputMode, TerminateString!(pchDescription), unCharMax, TerminateString!(pchExistingText));
+		}
+		public static uint32 GetEnteredGamepadTextLength()
+		{
+			return _iface.GetEnteredGamepadTextLength();
+		}
+		public static bool GetEnteredGamepadTextInput(char8* pchText, uint32 cchText)
+		{
+			return _iface.GetEnteredGamepadTextInput(pchText, cchText);
+		}
+		public static StringView GetSteamUILanguage()
+		{
+			return StringView(_iface.GetSteamUILanguage());
+		}
+		public static bool IsSteamRunningInVR()
+		{
+			return _iface.IsSteamRunningInVR();
+		}
+		public static void SetOverlayNotificationInset(int32 nHorizontalInset, int32 nVerticalInset)
+		{
+			_iface.SetOverlayNotificationInset(nHorizontalInset, nVerticalInset);
+		}
+		public static bool IsSteamInBigPictureMode()
+		{
+			return _iface.IsSteamInBigPictureMode();
+		}
 		public static void StartVRDashboard()
 		{
-			_utils.StartVRDashboard();
+			_iface.StartVRDashboard();
+		}
+		public static bool IsVRHeadsetStreamingEnabled()
+		{
+			return _iface.IsVRHeadsetStreamingEnabled();
+		}
+		public static void SetVRHeadsetStreamingEnabled(bool bEnabled)
+		{
+			_iface.SetVRHeadsetStreamingEnabled(bEnabled);
+		}
+		public static bool IsSteamChinaLauncher()
+		{
+			return _iface.IsSteamChinaLauncher();
+		}
+		public static bool InitFilterText(uint32 unFilterOptions)
+		{
+			return _iface.InitFilterText(unFilterOptions);
+		}
+		public static int32 FilterText(ETextFilteringContext eContext, CSteamID sourceSteamID, StringView pchInputMessage, char8* pchOutFilteredText, uint32 nByteSizeOutFilteredText)
+		{
+			return _iface.FilterText(eContext, sourceSteamID, TerminateString!(pchInputMessage), pchOutFilteredText, nByteSizeOutFilteredText);
+		}
+		public static ESteamIPv6ConnectivityState GetIPv6ConnectivityState(ESteamIPv6ConnectivityProtocol eProtocol)
+		{
+			return _iface.GetIPv6ConnectivityState(eProtocol);
 		}
 	}
 }

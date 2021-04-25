@@ -188,18 +188,20 @@ namespace Steamworks
 		public static void RunFrame(bool isGameServer)
 		{
 			CallbackMsg_t callbackMsg = ?;
-
 			HSteamPipe hSteamPipe = (isGameServer ? SteamGameServer_GetHSteamPipe() : SteamAPI_GetHSteamPipe());
 			var callbacksRegistry = isGameServer ? _serverCallbacks : _clientCallbacks;
 			SteamAPI_ManualDispatch_RunFrame(hSteamPipe);
-			while (SteamAPI_ManualDispatch_GetNextCallback(hSteamPipe, &callbackMsg))
+
+			uint8[512] callResultBuffer = ?;
+
+			while(SteamAPI_ManualDispatch_GetNextCallback(hSteamPipe, &callbackMsg))
 			{
 				if(callbackMsg.m_iCallback == SteamAPICallCompleted_t.CALLBACK_ID)
 				{
 					let callCompletedCb = (SteamAPICallCompleted_t*)callbackMsg.m_pubParam;
-					uint8* tmpCallResult = scope .[callbackMsg.m_cubParam]*;
+					//uint8* tmpCallResult = scope .[callbackMsg.m_cubParam]*;
 					bool failed = ?;
-					if(SteamAPI_ManualDispatch_GetAPICallResult(hSteamPipe, callCompletedCb.hAsyncCall, tmpCallResult, (int32)callCompletedCb.cubParam, callCompletedCb.iCallback,  &failed))
+					if(SteamAPI_ManualDispatch_GetAPICallResult(hSteamPipe, callCompletedCb.hAsyncCall, &callResultBuffer, (int32)callCompletedCb.cubParam, callCompletedCb.iCallback,  &failed))
 					{
 						if(_callResults.TryGetValue((uint64)callCompletedCb.hAsyncCall, let callResults))
 						{
@@ -207,13 +209,14 @@ namespace Steamworks
 							{
 								for(let cr in callResults)
 								{
-									cr.OnRunCallResult(tmpCallResult, failed, callCompletedCb.hAsyncCall);
+									cr.OnRunCallResult(&callResultBuffer, failed, callCompletedCb.hAsyncCall);
 									cr.SetUnregistered();
 								}
 								callResults.Clear();
 							}
 						}
 					}
+
 				}
 				else
 				{
@@ -221,16 +224,20 @@ namespace Steamworks
 					{
 						CALLBACKS:
 						{
-							Callback[] tmpCallbacks;
+							//Callback[] tmpCallbacks;
 							using(_monitor.Enter())
 							{
-								tmpCallbacks = scope:CALLBACKS Callback[callbacks.Count];
-								callbacks.CopyTo(tmpCallbacks);
+								for(let cb in callbacks)
+								{
+									cb.OnRunCallback(callbackMsg.m_pubParam);
+								}
+								/*tmpCallbacks = scope:CALLBACKS Callback[callbacks.Count];
+								callbacks.CopyTo(tmpCallbacks);*/
 							}
-							for(let cb in tmpCallbacks)
+							/*for(let cb in tmpCallbacks)
 							{
 								cb.OnRunCallback(callbackMsg.m_pubParam);
-							}	
+							}*/	
 						}
 					}
 				}

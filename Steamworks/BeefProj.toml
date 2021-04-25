@@ -2,3 +2,27 @@ FileVersion = 1
 
 [Project]
 Name = "Steamworks"
+
+[Configs.Debug.Win64]
+LibPaths = ["$(ProjectDir)\\sdk\\redistributable_bin\\win64\\steam_api64.lib"]
+
+[Configs.Debug.Win32]
+LibPaths = ["$(ProjectDir)\\sdk\\redistributable_bin\\steam_api.lib"]
+
+[Configs.Release.Win64]
+LibPaths = ["$(ProjectDir)\\sdk\\redistributable_bin\\win64\\steam_api64.lib"]
+
+[Configs.Release.Win32]
+LibPaths = ["$(ProjectDir)\\sdk\\redistributable_bin\\steam_api.lib"]
+
+[Configs.Paranoid.Win64]
+LibPaths = ["$(ProjectDir)\\sdk\\redistributable_bin\\win64\\steam_api64.lib"]
+
+[Configs.Paranoid.Win32]
+LibPaths = ["$(ProjectDir)\\sdk\\redistributable_bin\\steam_api.lib"]
+
+[Configs.Test.Win64]
+LibPaths = ["$(ProjectDir)\\sdk\\redistributable_bin\\win64\\steam_api64.lib"]
+
+[Configs.Test.Win32]
+LibPaths = ["$(ProjectDir)\\sdk\\redistributable_bin\\steam_api.lib"]

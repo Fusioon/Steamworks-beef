@@ -1,162 +1,135 @@
 using System;
 using Steamworks;
-
-using internal Steam;
-
-namespace Steam
+using Steamworks.Interfaces;
+using internal Steamworks;
+namespace Steamworks
 {
 	public static class SteamApps
 	{
-		static ISteamApps _apps;
-		static internal bool Init()
+		static ISteamApps _iface;
+		internal static bool APIInit_User() => (_iface = Accessors.SteamApps()) != 0;
+		internal static bool APIInit_Server() => (_iface = Accessors.SteamGameServerApps()) != 0;
+		public static bool BIsSubscribed()
 		{
-			return (_apps = Accessors.SteamApps()) != 0;
+			return _iface.BIsSubscribed();
 		}
-
-		public static bool GetDLCDataByIndex(int32 iDLC, out AppId_t pAppID, out bool pbAvailable, Span<char8> pchName)
+		public static bool BIsLowViolence()
 		{
-			pAppID = pbAvailable = ?;
-			return _apps.BGetDLCDataByIndex(iDLC, &pAppID, &pbAvailable, pchName.Ptr, (.)pchName.Length);
+			return _iface.BIsLowViolence();
 		}
-
-		public static bool IsAppInstalled(AppId_t appID)
+		public static bool BIsCybercafe()
 		{
-			return _apps.BIsAppInstalled(appID);
+			return _iface.BIsCybercafe();
 		}
-
-		[Obsolete("No longer used.", false)]
-		public static bool IsCybercafe()
+		public static bool BIsVACBanned()
 		{
-			return _apps.BIsCybercafe();
+			return _iface.BIsVACBanned();
 		}
-
-		public static bool IsDlcInstalled(AppId_t appID)
-		{
-			return _apps.BIsDlcInstalled(appID);
-		}
-
-		public static bool IsLowViolence()
-		{
-			return _apps.BIsLowViolence();
-		}
-
-		public static bool IsSubscribed()
-		{
-			return _apps.BIsSubscribed();
-		}
-
-		public static bool IsSubscribedApp(AppId_t appID)
-		{
-			return _apps.BIsSubscribedApp(appID);
-		}
-
-		public static bool IsSubscribedFromFamilySharing()
-		{
-			return _apps.BIsSubscribedFromFamilySharing();
-		}
-
-		public static bool IsSubscribedFromFreeWeekend()
-		{
-			return _apps.BIsSubscribedFromFreeWeekend();
-		}
-
-		public static bool IsVACBanned()
-		{
-			return _apps.BIsVACBanned();
-		}
-
-		public static int32 GetAppBuildId()
-		{
-			return _apps.GetAppBuildId();
-		}
-
-		public static uint32 GetAppInstallDir(AppId_t appID, Span<char8> buffer)
-		{
-			return _apps.GetAppInstallDir(appID, buffer.Ptr, (.)buffer.Length);
-		}
-
-		public static CSteamID GetAppOwner()
-		{
-			return _apps.GetAppOwner();
-		}
-
-		public static StringView GetAvailableGameLanguages()
-		{
-			return StringView(_apps.GetAvailableGameLanguages());
-		}
-
-		public static bool GetCurrentBetaName(Span<char8> buffer)
-		{
-			return _apps.GetCurrentBetaName(buffer.Ptr, (.)buffer.Length);
-		}
-
 		public static StringView GetCurrentGameLanguage()
 		{
-			return .(_apps.GetCurrentGameLanguage());
+			return StringView(_iface.GetCurrentGameLanguage());
 		}
-
-		public static int32 GetDLCCount()
+		public static StringView GetAvailableGameLanguages()
 		{
-			return _apps.GetDLCCount();
+			return StringView(_iface.GetAvailableGameLanguages());
 		}
-
-		public static bool GetDlcDownloadProgress(AppId_t nAppID, out uint64 punBytesDownloaded, out uint64 punBytesTotal)
+		public static bool BIsSubscribedApp(AppId_t appID)
 		{
-			punBytesDownloaded = punBytesTotal = ?;
-			return _apps.GetDlcDownloadProgress(nAppID, &punBytesDownloaded, &punBytesTotal);
+			return _iface.BIsSubscribedApp(appID);
 		}
-
+		public static bool BIsDlcInstalled(AppId_t appID)
+		{
+			return _iface.BIsDlcInstalled(appID);
+		}
 		public static uint32 GetEarliestPurchaseUnixTime(AppId_t nAppID)
 		{
-			return _apps.GetEarliestPurchaseUnixTime(nAppID);
+			return _iface.GetEarliestPurchaseUnixTime(nAppID);
 		}
-
+		public static bool BIsSubscribedFromFreeWeekend()
+		{
+			return _iface.BIsSubscribedFromFreeWeekend();
+		}
+		public static int32 GetDLCCount()
+		{
+			return _iface.GetDLCCount();
+		}
+		public static bool BGetDLCDataByIndex(int32 iDLC, AppId_t* pAppID, out bool pbAvailable, char8* pchName, int32 cchNameBufferSize)
+		{
+			pbAvailable = ?;
+			return _iface.BGetDLCDataByIndex(iDLC, pAppID, &pbAvailable, pchName, cchNameBufferSize);
+		}
+		public static void InstallDLC(AppId_t nAppID)
+		{
+			_iface.InstallDLC(nAppID);
+		}
+		public static void UninstallDLC(AppId_t nAppID)
+		{
+			_iface.UninstallDLC(nAppID);
+		}
+		public static void RequestAppProofOfPurchaseKey(AppId_t nAppID)
+		{
+			_iface.RequestAppProofOfPurchaseKey(nAppID);
+		}
+		public static bool GetCurrentBetaName(char8* pchName, int32 cchNameBufferSize)
+		{
+			return _iface.GetCurrentBetaName(pchName, cchNameBufferSize);
+		}
+		public static bool MarkContentCorrupt(bool bMissingFilesOnly)
+		{
+			return _iface.MarkContentCorrupt(bMissingFilesOnly);
+		}
+		public static uint32 GetInstalledDepots(AppId_t appID, DepotId_t* pvecDepots, uint32 cMaxDepots)
+		{
+			return _iface.GetInstalledDepots(appID, pvecDepots, cMaxDepots);
+		}
+		public static uint32 GetAppInstallDir(AppId_t appID, char8* pchFolder, uint32 cchFolderBufferSize)
+		{
+			return _iface.GetAppInstallDir(appID, pchFolder, cchFolderBufferSize);
+		}
+		public static bool BIsAppInstalled(AppId_t appID)
+		{
+			return _iface.BIsAppInstalled(appID);
+		}
+		public static CSteamID GetAppOwner()
+		{
+			return _iface.GetAppOwner();
+		}
+		public static StringView GetLaunchQueryParam(StringView pchKey)
+		{
+			return StringView(_iface.GetLaunchQueryParam(TerminateString!(pchKey)));
+		}
+		public static bool GetDlcDownloadProgress(AppId_t nAppID, out uint64 punBytesDownloaded, out uint64 punBytesTotal)
+		{
+			punBytesDownloaded = ?;
+			punBytesTotal = ?;
+			return _iface.GetDlcDownloadProgress(nAppID, &punBytesDownloaded, &punBytesTotal);
+		}
+		public static int32 GetAppBuildId()
+		{
+			return _iface.GetAppBuildId();
+		}
+		public static void RequestAllProofOfPurchaseKeys()
+		{
+			_iface.RequestAllProofOfPurchaseKeys();
+		}
 		[NoDiscard]
 		public static SteamAPICall_t GetFileDetails(StringView pszFileName)
 		{
-			return _apps.GetFileDetails(TerminateString!(pszFileName));
+			return _iface.GetFileDetails(TerminateString!(pszFileName));
 		}
-
-		public static uint32 GetInstalledDepots(AppId_t appID, Span<DepotId_t> pvecDepots)
+		public static int32 GetLaunchCommandLine(char8* pszCommandLine, int32 cubCommandLine)
 		{
-			return _apps.GetInstalledDepots(appID, pvecDepots.Ptr, (uint32)pvecDepots.Length);
+			return _iface.GetLaunchCommandLine(pszCommandLine, cubCommandLine);
 		}
-
-		public static int32 GetLaunchCommandLine(Span<char8> buffer)
+		public static bool BIsSubscribedFromFamilySharing()
 		{
-			return _apps.GetLaunchCommandLine(buffer.Ptr, (.)buffer.Length);
+			return _iface.BIsSubscribedFromFamilySharing();
 		}
-
-		public static StringView GetLaunchQueryParam(StringView pchKey)
+		public static bool BIsTimedTrial(out uint32 punSecondsAllowed, out uint32 punSecondsPlayed)
 		{
-			return StringView(_apps.GetLaunchQueryParam(TerminateString!(pchKey)));
-		}
-
-		public static void InstallDLC(AppId_t nAppID)
-		{
-			_apps.InstallDLC(nAppID);
-		}
-
-		public static bool MarkContentCorrupt(bool bMissingFilesOnly)
-		{
-			return _apps.MarkContentCorrupt(bMissingFilesOnly);
-		}
-
-		[Obsolete("Deprecated.", false)]
-		public static void RequestAllProofOfPurchaseKeys()
-		{
-			_apps.RequestAllProofOfPurchaseKeys();
-		}
-
-		[Obsolete("Deprecated.", false)]
-		public static void RequestAppProofOfPurchaseKey(AppId_t nAppID)
-		{
-			_apps.RequestAppProofOfPurchaseKey(nAppID);
-		}
-
-		public static void UninstallDLC(AppId_t nAppID)
-		{
-			_apps.UninstallDLC(nAppID);
+			punSecondsAllowed = ?;
+			punSecondsPlayed = ?;
+			return _iface.BIsTimedTrial(&punSecondsAllowed, &punSecondsPlayed);
 		}
 	}
 }

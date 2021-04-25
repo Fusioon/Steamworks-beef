@@ -1,5 +1,7 @@
 using System;
 
+using Steamworks.Interfaces;
+
 namespace Steamworks
 {
 	public static

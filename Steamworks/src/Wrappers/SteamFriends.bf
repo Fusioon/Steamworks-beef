@@ -1,409 +1,326 @@
 using System;
 using Steamworks;
-
-using internal Steam;
-
-namespace Steam
+using Steamworks.Interfaces;
+using internal Steamworks;
+namespace Steamworks
 {
 	public static class SteamFriends
 	{
-		const int MESSAGE_BUFFER_SIZE = 8192 + 1;
-
-		static ISteamFriends _friends;
-		static internal bool Init()
-		{
-			return (_friends = Accessors.SteamFriends()) != 0;
-		}
-
-		public static void ActivateGameOverlay(StringView dialog)
-		{
-			_friends.ActivateGameOverlay(TerminateString!(dialog));
-		}
-
-		public static void ActivateGameOverlayInviteDialog(CSteamID lobbyId)
-		{
-			_friends.ActivateGameOverlayInviteDialog(lobbyId);
-		}
-
-		public static void ActivateGameOverlayInviteDialogConnectString(StringView connectionString)
-		{
-			_friends.ActivateGameOverlayInviteDialogConnectString(TerminateString!(connectionString));
-		}
-
-		public static void ActivateGameOverlayRemotePlayTogetherInviteDialog(CSteamID lobbyId)
-		{
-			_friends.ActivateGameOverlayRemotePlayTogetherInviteDialog(lobbyId);
-		}
-
-		public static void ActivateGameOverlayToStore(AppId_t appId, EOverlayToStoreFlag flags)
-		{
-			_friends.ActivateGameOverlayToStore(appId, flags);
-		}
-
-		public static void ActivateGameOverlayToUser(StringView dialog, CSteamID steamId)
-		{
-			_friends.ActivateGameOverlayToUser(TerminateString!(dialog), steamId);
-		}
-
-		public static void ActivateGameOverlayToWebPage(StringView dialog, EActivateGameOverlayToWebPageMode mode)
-		{
-			_friends.ActivateGameOverlayToWebPage(TerminateString!(dialog), mode);
-		}
-
-		public static void ClearRichPresence()
-		{
-			_friends.ClearRichPresence();
-		}
-
-		public static bool CloseClanChatWindowInSteam(CSteamID clanChatId)
-		{
-			return _friends.CloseClanChatWindowInSteam(clanChatId);
-		}
-
-		[NoDiscard]
-		public static SteamAPICall_t DownloadClanActivityCounts(Span<CSteamID> clans)
-		{
-			return _friends.DownloadClanActivityCounts(clans.Ptr, (.)clans.Length);
-		}
-
-		[NoDiscard]
-		public static SteamAPICall_t EnumerateFollowingList(uint32 startIndex)
-		{
-			return _friends.EnumerateFollowingList(startIndex);
-		}
-
-		public static CSteamID GetChatMemberByIndex(CSteamID clanId, int32 user)
-		{
-			return _friends.GetChatMemberByIndex(clanId, user);
-		}
-
-		public static bool GetClanActivityCounts(CSteamID clanId, out int32 online, out int32 inGame, out int32 chatting)
-		{
-			online = inGame = chatting = ?;
-			return _friends.GetClanActivityCounts(clanId, &online, &inGame, &chatting);
-		}
-
-		public static CSteamID GetClanByIndex(int32 clan)
-		{
-			return _friends.GetClanByIndex(clan);
-		}
-
-		public static int32 GetClanChatMemberCount(CSteamID clanId)
-		{
-			return _friends.GetClanChatMemberCount(clanId);
-		}
-
-		public static int32 GetClanChatMessage(CSteamID clanId, int32 message, Span<uint8> messageBuffer, out EChatEntryType type, out CSteamID chatter)
-		{
-			chatter = type = ?;
-			return _friends.GetClanChatMessage(clanId, message, messageBuffer.Ptr, (.)messageBuffer.Length, &type, &chatter);
-		}
-
-		public static int32 GetClanCount()
-		{
-			return _friends.GetClanCount();
-		}
-
-		public static StringView GetClanName(CSteamID clanId)
-		{
-			return StringView(_friends.GetClanName(clanId));
-		}
-
-		public static CSteamID GetClanCount(CSteamID clanId, int32 officer)
-		{
-			return _friends.GetClanOfficerByIndex(clanId, officer);
-		}
-
-		public static int32 GetClanOfficerCount(CSteamID clanId)
-		{
-			return _friends.GetClanOfficerCount(clanId);
-		}
-
-		public static CSteamID GetClanOwner(CSteamID clanId)
-		{
-			return _friends.GetClanOwner(clanId);
-		}
-
-		public static StringView GetClanTag(CSteamID clanId)
-		{
-			return StringView(_friends.GetClanTag(clanId));
-		}
-
-		public static CSteamID GetCoplayFriend(int32 coplayFriend)
-		{
-			return _friends.GetCoplayFriend(coplayFriend);
-		}
-
-		public static int32 GetCoplayFriendCount()
-		{
-			return _friends.GetCoplayFriendCount();
-		}
-
-		[NoDiscard]
-		public static SteamAPICall_t GetFollowerCount(CSteamID steamId)
-		{
-			return _friends.GetFollowerCount(steamId);
-		}
-
-		public static CSteamID GetFriendByIndex(int32 friend, EFriendFlags flags)
-		{
-			return _friends.GetFriendByIndex(friend, (int32)flags);
-		}
-
-		public static AppId_t GetFriendCoplayGame(CSteamID steamId)
-		{
-			return _friends.GetFriendCoplayGame(steamId);
-		}
-
-		public static int32 GetFriendCoplayTime(CSteamID steamId)
-		{
-			return _friends.GetFriendCoplayTime(steamId);
-		}
-
-		public static int32 GetFriendCount(EFriendFlags flags)
-		{
-			return _friends.GetFriendCount((int32)flags);
-		}
-
-		public static int32 GetFriendCountFromSource(CSteamID sourceId)
-		{
-			return _friends.GetFriendCountFromSource(sourceId);
-		}
-
-		public static CSteamID GetFriendFromSourceByIndex(CSteamID sourceId, int32 friend)
-		{
-			return _friends.GetFriendFromSourceByIndex(sourceId, friend);
-		}
-
-		public static bool GetFriendGamePlayed(CSteamID friendId, out FriendGameInfo_t info)
-		{
-			info = ?;
-			return _friends.GetFriendGamePlayed(friendId, &info);
-		}
-
-		public static int32 GetFriendMessage(CSteamID friendId, int32 messageId, Span<char8> messageBuffer, out EChatEntryType type)
-		{
-			type = ?;
-			return _friends.GetFriendMessage(friendId, messageId, messageBuffer.Ptr, (.)messageBuffer.Length, &type);
-		}
-
-		public static StringView GetFriendPersonaName(CSteamID friendId)
-		{
-			return StringView(_friends.GetFriendPersonaName(friendId));
-		}
-
-		public static StringView GetFriendPersonaNameHistory(CSteamID friendId, int32 personaName)
-		{
-			return StringView(_friends.GetFriendPersonaNameHistory(friendId, personaName));
-		}
-
-		public static EPersonaState GetFriendPersonaState(CSteamID friendId)
-		{
-			return _friends.GetFriendPersonaState(friendId);
-		}
-
-		public static EFriendRelationship GetFriendRelationship(CSteamID friendId)
-		{
-			return _friends.GetFriendRelationship(friendId);
-		}
-
-		public static StringView GetFriendRichPresence(CSteamID friendId, StringView key)
-		{
-			return StringView(_friends.GetFriendRichPresence(friendId, TerminateString!(key)));
-		}
-
-		public static StringView GetFriendRichPresenceKeyByIndex(CSteamID friendId, int32 key)
-		{
-			return StringView(_friends.GetFriendRichPresenceKeyByIndex(friendId, key));
-		}
-
-		public static int32 GetFriendRichPresenceKeyCount(CSteamID friendId)
-		{
-			return _friends.GetFriendRichPresenceKeyCount(friendId);
-		}
-
-		public static int32 GetFriendsGroupCount()
-		{
-			return _friends.GetFriendsGroupCount();
-		}
-
-		public static FriendsGroupID_t GetFriendsGroupIDByIndex(int32 friendGroup)
-		{
-			return _friends.GetFriendsGroupIDByIndex(friendGroup);
-		}
-
-		public static int32 GetFriendsGroupMembersCount(FriendsGroupID_t friendGroup)
-		{
-			return _friends.GetFriendsGroupMembersCount(friendGroup);
-		}
-
-		public static void GetFriendsGroupMembersList(FriendsGroupID_t friendGroup, Span<CSteamID> members)
-		{
-			_friends.GetFriendsGroupMembersList(friendGroup, members.Ptr, (int32)members.Length);
-		}
-
-		public static StringView GetFriendsGroupName(FriendsGroupID_t friendGroup)
-		{
-			return StringView(_friends.GetFriendsGroupName(friendGroup));
-		}
-
-		public static int32 GetFriendSteamLevel(CSteamID friendId)
-		{
-			return _friends.GetFriendSteamLevel(friendId);
-		}
-
-		public static int32 GetLargeFriendAvatar(CSteamID friendId)
-		{
-			return _friends.GetLargeFriendAvatar(friendId);
-		}
-
-		public static int32 GetMediumFriendAvatar(CSteamID friendId)
-		{
-			return _friends.GetMediumFriendAvatar(friendId);
-		}
-
-		public static int32 GetNumChatsWithUnreadPriorityMessages()
-		{
-			return _friends.GetNumChatsWithUnreadPriorityMessages();
-		}
-
+		static ISteamFriends _iface;
+		internal static bool APIInit_User() => (_iface = Accessors.SteamFriends()) != 0;
 		public static StringView GetPersonaName()
 		{
-			return StringView(_friends.GetPersonaName());
+			return StringView(_iface.GetPersonaName());
 		}
-
+		[NoDiscard]
+		public static SteamAPICall_t SetPersonaName(StringView pchPersonaName)
+		{
+			return _iface.SetPersonaName(TerminateString!(pchPersonaName));
+		}
 		public static EPersonaState GetPersonaState()
 		{
-			return _friends.GetPersonaState();
+			return _iface.GetPersonaState();
 		}
-
-		public static StringView GetPlayerNickname(CSteamID playerId)
+		public static int32 GetFriendCount(int32 iFriendFlags)
 		{
-			return StringView(_friends.GetPlayerNickname(playerId));
+			return _iface.GetFriendCount(iFriendFlags);
 		}
-
-		public static int32 GetSmallFriendAvatar(CSteamID friendId)
+		public static CSteamID GetFriendByIndex(int32 iFriend, int32 iFriendFlags)
 		{
-			return _friends.GetSmallFriendAvatar(friendId);
+			return _iface.GetFriendByIndex(iFriend, iFriendFlags);
 		}
-
-		public static EUserRestriction GetUserRestrictions()
+		public static EFriendRelationship GetFriendRelationship(CSteamID steamIDFriend)
 		{
-			return (EUserRestriction)_friends.GetUserRestrictions();
+			return _iface.GetFriendRelationship(steamIDFriend);
 		}
-
-		public static bool HasFriend(CSteamID friendId, EFriendFlags flags)
+		public static EPersonaState GetFriendPersonaState(CSteamID steamIDFriend)
 		{
-			return _friends.HasFriend(friendId, (int32)flags);
+			return _iface.GetFriendPersonaState(steamIDFriend);
 		}
-
-		public static bool InviteUserToGame(CSteamID friendId, StringView connectString)
+		public static StringView GetFriendPersonaName(CSteamID steamIDFriend)
 		{
-			return _friends.InviteUserToGame(friendId, TerminateString!(connectString));
+			return StringView(_iface.GetFriendPersonaName(steamIDFriend));
 		}
-
-		public static bool IsClanChatAdmin(CSteamID clanId, CSteamID userId)
+		public static bool GetFriendGamePlayed(CSteamID steamIDFriend, FriendGameInfo_t* pFriendGameInfo)
 		{
-			return _friends.IsClanChatAdmin(clanId, userId);
+			return _iface.GetFriendGamePlayed(steamIDFriend, pFriendGameInfo);
 		}
-
-		public static bool IsClanChatWindowOpenInSteam(CSteamID clanId)
+		public static StringView GetFriendPersonaNameHistory(CSteamID steamIDFriend, int32 iPersonaName)
 		{
-			return _friends.IsClanChatWindowOpenInSteam(clanId);
+			return StringView(_iface.GetFriendPersonaNameHistory(steamIDFriend, iPersonaName));
 		}
-
-		public static bool IsClanOfficialGameGroup(CSteamID clanId)
+		public static int32 GetFriendSteamLevel(CSteamID steamIDFriend)
 		{
-			return _friends.IsClanOfficialGameGroup(clanId);
+			return _iface.GetFriendSteamLevel(steamIDFriend);
 		}
-
-		public static bool IsClanPublic(CSteamID clanId)
+		public static StringView GetPlayerNickname(CSteamID steamIDPlayer)
 		{
-			return _friends.IsClanPublic(clanId);
+			return StringView(_iface.GetPlayerNickname(steamIDPlayer));
 		}
-
+		public static int32 GetFriendsGroupCount()
+		{
+			return _iface.GetFriendsGroupCount();
+		}
+		public static FriendsGroupID_t GetFriendsGroupIDByIndex(int32 iFG)
+		{
+			return _iface.GetFriendsGroupIDByIndex(iFG);
+		}
+		public static StringView GetFriendsGroupName(FriendsGroupID_t friendsGroupID)
+		{
+			return StringView(_iface.GetFriendsGroupName(friendsGroupID));
+		}
+		public static int32 GetFriendsGroupMembersCount(FriendsGroupID_t friendsGroupID)
+		{
+			return _iface.GetFriendsGroupMembersCount(friendsGroupID);
+		}
+		public static void GetFriendsGroupMembersList(FriendsGroupID_t friendsGroupID, CSteamID* pOutSteamIDMembers, int32 nMembersCount)
+		{
+			_iface.GetFriendsGroupMembersList(friendsGroupID, pOutSteamIDMembers, nMembersCount);
+		}
+		public static bool HasFriend(CSteamID steamIDFriend, int32 iFriendFlags)
+		{
+			return _iface.HasFriend(steamIDFriend, iFriendFlags);
+		}
+		public static int32 GetClanCount()
+		{
+			return _iface.GetClanCount();
+		}
+		public static CSteamID GetClanByIndex(int32 iClan)
+		{
+			return _iface.GetClanByIndex(iClan);
+		}
+		public static StringView GetClanName(CSteamID steamIDClan)
+		{
+			return StringView(_iface.GetClanName(steamIDClan));
+		}
+		public static StringView GetClanTag(CSteamID steamIDClan)
+		{
+			return StringView(_iface.GetClanTag(steamIDClan));
+		}
+		public static bool GetClanActivityCounts(CSteamID steamIDClan, out int32 pnOnline, out int32 pnInGame, out int32 pnChatting)
+		{
+			pnOnline = ?;
+			pnInGame = ?;
+			pnChatting = ?;
+			return _iface.GetClanActivityCounts(steamIDClan, &pnOnline, &pnInGame, &pnChatting);
+		}
 		[NoDiscard]
-		public static SteamAPICall_t IsFollowing(CSteamID clanId)
+		public static SteamAPICall_t DownloadClanActivityCounts(CSteamID* psteamIDClans, int32 cClansToRequest)
 		{
-			return _friends.IsFollowing(clanId);
+			return _iface.DownloadClanActivityCounts(psteamIDClans, cClansToRequest);
 		}
-
-		public static bool IsUserInSource(CSteamID userId, CSteamID sourceId)
+		public static int32 GetFriendCountFromSource(CSteamID steamIDSource)
 		{
-			return _friends.IsUserInSource(userId, sourceId);
+			return _iface.GetFriendCountFromSource(steamIDSource);
 		}
-
+		public static CSteamID GetFriendFromSourceByIndex(CSteamID steamIDSource, int32 iFriend)
+		{
+			return _iface.GetFriendFromSourceByIndex(steamIDSource, iFriend);
+		}
+		public static bool IsUserInSource(CSteamID steamIDUser, CSteamID steamIDSource)
+		{
+			return _iface.IsUserInSource(steamIDUser, steamIDSource);
+		}
+		public static void SetInGameVoiceSpeaking(CSteamID steamIDUser, bool bSpeaking)
+		{
+			_iface.SetInGameVoiceSpeaking(steamIDUser, bSpeaking);
+		}
+		public static void ActivateGameOverlay(StringView pchDialog)
+		{
+			_iface.ActivateGameOverlay(TerminateString!(pchDialog));
+		}
+		public static void ActivateGameOverlayToUser(StringView pchDialog, CSteamID steamID)
+		{
+			_iface.ActivateGameOverlayToUser(TerminateString!(pchDialog), steamID);
+		}
+		public static void ActivateGameOverlayToWebPage(StringView pchURL, EActivateGameOverlayToWebPageMode eMode)
+		{
+			_iface.ActivateGameOverlayToWebPage(TerminateString!(pchURL), eMode);
+		}
+		public static void ActivateGameOverlayToStore(AppId_t nAppID, EOverlayToStoreFlag eFlag)
+		{
+			_iface.ActivateGameOverlayToStore(nAppID, eFlag);
+		}
+		public static void SetPlayedWith(CSteamID steamIDUserPlayedWith)
+		{
+			_iface.SetPlayedWith(steamIDUserPlayedWith);
+		}
+		public static void ActivateGameOverlayInviteDialog(CSteamID steamIDLobby)
+		{
+			_iface.ActivateGameOverlayInviteDialog(steamIDLobby);
+		}
+		public static int32 GetSmallFriendAvatar(CSteamID steamIDFriend)
+		{
+			return _iface.GetSmallFriendAvatar(steamIDFriend);
+		}
+		public static int32 GetMediumFriendAvatar(CSteamID steamIDFriend)
+		{
+			return _iface.GetMediumFriendAvatar(steamIDFriend);
+		}
+		public static int32 GetLargeFriendAvatar(CSteamID steamIDFriend)
+		{
+			return _iface.GetLargeFriendAvatar(steamIDFriend);
+		}
+		public static bool RequestUserInformation(CSteamID steamIDUser, bool bRequireNameOnly)
+		{
+			return _iface.RequestUserInformation(steamIDUser, bRequireNameOnly);
+		}
 		[NoDiscard]
-		public static SteamAPICall_t JoinClanChatRoom(CSteamID clanId)
+		public static SteamAPICall_t RequestClanOfficerList(CSteamID steamIDClan)
 		{
-			return _friends.JoinClanChatRoom(clanId);
+			return _iface.RequestClanOfficerList(steamIDClan);
 		}
-
-		public static bool LeaveClanChatRoom(CSteamID clanId)
+		public static CSteamID GetClanOwner(CSteamID steamIDClan)
 		{
-			return _friends.LeaveClanChatRoom(clanId);
+			return _iface.GetClanOwner(steamIDClan);
 		}
-
-		public static bool OpenClanChatWindowInSteam(CSteamID clanId)
+		public static int32 GetClanOfficerCount(CSteamID steamIDClan)
 		{
-			return _friends.OpenClanChatWindowInSteam(clanId);
+			return _iface.GetClanOfficerCount(steamIDClan);
 		}
-
-		public static bool RegisterProtocolInOverlayBrowser(StringView protocol)
+		public static CSteamID GetClanOfficerByIndex(CSteamID steamIDClan, int32 iOfficer)
 		{
-			return _friends.RegisterProtocolInOverlayBrowser(TerminateString!(protocol));
+			return _iface.GetClanOfficerByIndex(steamIDClan, iOfficer);
 		}
-
-		public static bool ReplyToFriendMessage(CSteamID friendId, StringView message)
+		public static uint32 GetUserRestrictions()
 		{
-			return _friends.ReplyToFriendMessage(friendId, TerminateString!(message));
+			return _iface.GetUserRestrictions();
 		}
-
+		public static bool SetRichPresence(StringView pchKey, StringView pchValue)
+		{
+			return _iface.SetRichPresence(TerminateString!(pchKey), TerminateString!(pchValue));
+		}
+		public static void ClearRichPresence()
+		{
+			_iface.ClearRichPresence();
+		}
+		public static StringView GetFriendRichPresence(CSteamID steamIDFriend, StringView pchKey)
+		{
+			return StringView(_iface.GetFriendRichPresence(steamIDFriend, TerminateString!(pchKey)));
+		}
+		public static int32 GetFriendRichPresenceKeyCount(CSteamID steamIDFriend)
+		{
+			return _iface.GetFriendRichPresenceKeyCount(steamIDFriend);
+		}
+		public static StringView GetFriendRichPresenceKeyByIndex(CSteamID steamIDFriend, int32 iKey)
+		{
+			return StringView(_iface.GetFriendRichPresenceKeyByIndex(steamIDFriend, iKey));
+		}
+		public static void RequestFriendRichPresence(CSteamID steamIDFriend)
+		{
+			_iface.RequestFriendRichPresence(steamIDFriend);
+		}
+		public static bool InviteUserToGame(CSteamID steamIDFriend, StringView pchConnectString)
+		{
+			return _iface.InviteUserToGame(steamIDFriend, TerminateString!(pchConnectString));
+		}
+		public static int32 GetCoplayFriendCount()
+		{
+			return _iface.GetCoplayFriendCount();
+		}
+		public static CSteamID GetCoplayFriend(int32 iCoplayFriend)
+		{
+			return _iface.GetCoplayFriend(iCoplayFriend);
+		}
+		public static int32 GetFriendCoplayTime(CSteamID steamIDFriend)
+		{
+			return _iface.GetFriendCoplayTime(steamIDFriend);
+		}
+		public static AppId_t GetFriendCoplayGame(CSteamID steamIDFriend)
+		{
+			return _iface.GetFriendCoplayGame(steamIDFriend);
+		}
 		[NoDiscard]
-		public static SteamAPICall_t RequestClanOfficerList(CSteamID clanId)
+		public static SteamAPICall_t JoinClanChatRoom(CSteamID steamIDClan)
 		{
-			return _friends.RequestClanOfficerList(clanId);
+			return _iface.JoinClanChatRoom(steamIDClan);
 		}
-
-		public static void RequestFriendRichPresence(CSteamID friendId)
+		public static bool LeaveClanChatRoom(CSteamID steamIDClan)
 		{
-			_friends.RequestFriendRichPresence(friendId);
+			return _iface.LeaveClanChatRoom(steamIDClan);
 		}
-
-		public static bool RequestFriendRichPresence(CSteamID friendId, bool requireNameOnly)
+		public static int32 GetClanChatMemberCount(CSteamID steamIDClan)
 		{
-			return _friends.RequestUserInformation(friendId, requireNameOnly);
+			return _iface.GetClanChatMemberCount(steamIDClan);
 		}
-
-		public static bool SendClanChatMessage(CSteamID clanId, StringView message)
+		public static CSteamID GetChatMemberByIndex(CSteamID steamIDClan, int32 iUser)
 		{
-			return _friends.SendClanChatMessage(clanId, TerminateString!(message));
+			return _iface.GetChatMemberByIndex(steamIDClan, iUser);
 		}
-
-		public static void SetInGameVoiceSpeaking(CSteamID userId, bool speaking)
+		public static bool SendClanChatMessage(CSteamID steamIDClanChat, StringView pchText)
 		{
-			_friends.SetInGameVoiceSpeaking(userId, speaking);
+			return _iface.SendClanChatMessage(steamIDClanChat, TerminateString!(pchText));
 		}
-
-		public static bool SetListenForFriendsMessages(bool interceptEnabled)
+		public static int32 GetClanChatMessage(CSteamID steamIDClanChat, int32 iMessage, void* prgchText, int32 cchTextMax, EChatEntryType* peChatEntryType, CSteamID* psteamidChatter)
 		{
-			return _friends.SetListenForFriendsMessages(interceptEnabled);
+			return _iface.GetClanChatMessage(steamIDClanChat, iMessage, prgchText, cchTextMax, peChatEntryType, psteamidChatter);
 		}
-
+		public static bool IsClanChatAdmin(CSteamID steamIDClanChat, CSteamID steamIDUser)
+		{
+			return _iface.IsClanChatAdmin(steamIDClanChat, steamIDUser);
+		}
+		public static bool IsClanChatWindowOpenInSteam(CSteamID steamIDClanChat)
+		{
+			return _iface.IsClanChatWindowOpenInSteam(steamIDClanChat);
+		}
+		public static bool OpenClanChatWindowInSteam(CSteamID steamIDClanChat)
+		{
+			return _iface.OpenClanChatWindowInSteam(steamIDClanChat);
+		}
+		public static bool CloseClanChatWindowInSteam(CSteamID steamIDClanChat)
+		{
+			return _iface.CloseClanChatWindowInSteam(steamIDClanChat);
+		}
+		public static bool SetListenForFriendsMessages(bool bInterceptEnabled)
+		{
+			return _iface.SetListenForFriendsMessages(bInterceptEnabled);
+		}
+		public static bool ReplyToFriendMessage(CSteamID steamIDFriend, StringView pchMsgToSend)
+		{
+			return _iface.ReplyToFriendMessage(steamIDFriend, TerminateString!(pchMsgToSend));
+		}
+		public static int32 GetFriendMessage(CSteamID steamIDFriend, int32 iMessageID, void* pvData, int32 cubData, EChatEntryType* peChatEntryType)
+		{
+			return _iface.GetFriendMessage(steamIDFriend, iMessageID, pvData, cubData, peChatEntryType);
+		}
 		[NoDiscard]
-		public static SteamAPICall_t SetListenForFriendsMessages(StringView name)
+		public static SteamAPICall_t GetFollowerCount(CSteamID steamID)
 		{
-			return _friends.SetPersonaName(TerminateString!(name));
+			return _iface.GetFollowerCount(steamID);
 		}
-
-		public static void SetPlayedWith(CSteamID playedWithId)
+		[NoDiscard]
+		public static SteamAPICall_t IsFollowing(CSteamID steamID)
 		{
-			_friends.SetPlayedWith(playedWithId);
+			return _iface.IsFollowing(steamID);
 		}
-
-		public static void SetPlayedWith(StringView key, StringView value)
+		[NoDiscard]
+		public static SteamAPICall_t EnumerateFollowingList(uint32 unStartIndex)
 		{
-			_friends.SetRichPresence(TerminateString!(key), TerminateString!(value));
+			return _iface.EnumerateFollowingList(unStartIndex);
+		}
+		public static bool IsClanPublic(CSteamID steamIDClan)
+		{
+			return _iface.IsClanPublic(steamIDClan);
+		}
+		public static bool IsClanOfficialGameGroup(CSteamID steamIDClan)
+		{
+			return _iface.IsClanOfficialGameGroup(steamIDClan);
+		}
+		public static int32 GetNumChatsWithUnreadPriorityMessages()
+		{
+			return _iface.GetNumChatsWithUnreadPriorityMessages();
+		}
+		public static void ActivateGameOverlayRemotePlayTogetherInviteDialog(CSteamID steamIDLobby)
+		{
+			_iface.ActivateGameOverlayRemotePlayTogetherInviteDialog(steamIDLobby);
+		}
+		public static bool RegisterProtocolInOverlayBrowser(StringView pchProtocol)
+		{
+			return _iface.RegisterProtocolInOverlayBrowser(TerminateString!(pchProtocol));
+		}
+		public static void ActivateGameOverlayInviteDialogConnectString(StringView pchConnectString)
+		{
+			_iface.ActivateGameOverlayInviteDialogConnectString(TerminateString!(pchConnectString));
 		}
 	}
 }

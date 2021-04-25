@@ -184,6 +184,15 @@ namespace Generator
 
 		static Dictionary<String, String> replaceTypes = new .()
 			{
+				("int8", "int8"),
+				("uint8", "uint8"),
+				("int16", "int16"),
+				("uint16", "uint16"),
+				("int32", "int32"),
+				("uint32", "uint32"),
+				("int64", "int64"),
+				("uint64", "uint64"),
+
 				("int8_t", "int8"),
 				("uint8_t", "uint8"),
 				("int16_t", "int16"),
@@ -357,6 +366,9 @@ namespace Generator
 			if (replaceTypes.TryGetValue(tmp, let v))
 			{
 				typeBuffer.Set(v);
+				// Currently only integer types are replaced, so this is safe.
+				// If there is need to replace other types in future this needs to be improved
+				info.typeCode = .Integer;	
 			}
 			else
 			{
@@ -436,6 +448,7 @@ namespace Generator
 
 			if (typeBuffer.IsEmpty)
 			{
+				info.typeCode = .Custom;
 				typeBuffer.Set(tmp);
 			}
 
@@ -467,6 +480,7 @@ namespace Generator
 			}
 
 			typeInfo = info;
+
 			return .Success_Type;
 		}
 
@@ -495,7 +509,6 @@ namespace Generator
 				Console.WriteLine("Expected '('");
 				return false;
 			}
-
 
 			bool cont;
 			int argcount = 1;

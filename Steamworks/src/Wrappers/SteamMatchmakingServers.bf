@@ -2,12 +2,13 @@
 
 using System;
 using Steamworks;
+using Steamworks.Interfaces;
 
-using internal Steam;
-namespace Steam
+using internal Steamworks;
+namespace Steamworks
 {
 	[CRepr]
-	struct SteamMatchmakingServerListResponseHandler
+	public struct SteamMatchmakingServerListResponseHandler
 	{
 		function void ServerRespondedFN(SelfOuter this, HServerListRequest hRequest, int32 iServer);
 		function void ServerFailedToRespondFN(SelfOuter this, HServerListRequest hRequest, int32 iServer);
@@ -51,7 +52,7 @@ namespace Steam
 	}
 
 	[CRepr]
-	struct SteamMatchmakingPingResponseHandler
+	public struct SteamMatchmakingPingResponseHandler
 	{
 		public function void ServerRespondedFN(SelfOuter this, ref gameserveritem_t server);
 		public function void ServerFailedToRespondFN(SelfOuter this);
@@ -90,7 +91,7 @@ namespace Steam
 	}	
 
 	[CRepr]
-	struct SteamMatchmakingPlayersResponseHandler
+	public struct SteamMatchmakingPlayersResponseHandler
 	{
 		function void AddPlayerToListFN(SelfOuter this, char8* pchName, int32 nScore, float flTimePlayed);
 		function void PlayersFailedToRespondFN(SelfOuter this);
@@ -136,7 +137,7 @@ namespace Steam
 	}
 
 	[CRepr]
-	struct SteamMatchmakingRulesResponseHandler
+	public struct SteamMatchmakingRulesResponseHandler
 	{
 		function void RulesRespondedFN(SelfOuter this, char8* pchRule, char8* pchValue);
 		function void RulesFailedToRespondFN(SelfOuter this);
@@ -183,95 +184,92 @@ namespace Steam
 
 	public static class SteamMatchmakingServers
 	{
-		static ISteamMatchmakingServers _mmservers;
-		internal static bool Init()
-		{
-			return (_mmservers = Accessors.SteamMatchmakingServers()) != 0;
-		}
+		static ISteamMatchmakingServers _iface;
+		internal static bool APIInit_User() => (_iface = Accessors.SteamMatchmakingServers()) != 0;
 
 		public static HServerListRequest RequestInternetServerList(AppId_t iApp, Span<MatchMakingKeyValuePair_t*> ppchFilters, in SteamMatchmakingServerListResponseHandler pRequestServersResponse)
 		{
-			return _mmservers.RequestInternetServerList(iApp, ppchFilters.Ptr, (uint32)ppchFilters.Length, (void*)&pRequestServersResponse);
+			return _iface.RequestInternetServerList(iApp, ppchFilters.Ptr, (uint32)ppchFilters.Length, (void*)&pRequestServersResponse);
 		}
 
 		public static HServerListRequest RequestLANServerList(AppId_t iApp, in SteamMatchmakingServerListResponseHandler pRequestServersResponse)
 		{
-			return _mmservers.RequestLANServerList(iApp, (void*)&pRequestServersResponse);
+			return _iface.RequestLANServerList(iApp, (void*)&pRequestServersResponse);
 		}
 
 		public static HServerListRequest RequestFriendsServerList(AppId_t iApp, Span<MatchMakingKeyValuePair_t*> ppchFilters, in SteamMatchmakingServerListResponseHandler pRequestServersResponse)
 		{
-			return _mmservers.RequestFriendsServerList(iApp, ppchFilters.Ptr, (uint32)ppchFilters.Length, (void*)&pRequestServersResponse);
+			return _iface.RequestFriendsServerList(iApp, ppchFilters.Ptr, (uint32)ppchFilters.Length, (void*)&pRequestServersResponse);
 		}
 
 		public static HServerListRequest RequestFavoritesServerList(AppId_t iApp, Span<MatchMakingKeyValuePair_t*> ppchFilters, uint32 nFilters, in SteamMatchmakingServerListResponseHandler pRequestServersResponse)
 		{
-			return _mmservers.RequestFriendsServerList(iApp, ppchFilters.Ptr, (uint32)ppchFilters.Length, (void*)&pRequestServersResponse);
+			return _iface.RequestFriendsServerList(iApp, ppchFilters.Ptr, (uint32)ppchFilters.Length, (void*)&pRequestServersResponse);
 		}
 
 		public static HServerListRequest RequestHistoryServerList(AppId_t iApp, Span<MatchMakingKeyValuePair_t*> ppchFilters, in SteamMatchmakingServerListResponseHandler pRequestServersResponse)
 		{
-			return _mmservers.RequestFriendsServerList(iApp, ppchFilters.Ptr, (uint32)ppchFilters.Length, (void*)&pRequestServersResponse);
+			return _iface.RequestFriendsServerList(iApp, ppchFilters.Ptr, (uint32)ppchFilters.Length, (void*)&pRequestServersResponse);
 		}
 
 		public static HServerListRequest RequestSpectatorServerList(AppId_t iApp, Span<MatchMakingKeyValuePair_t*> ppchFilters, in SteamMatchmakingServerListResponseHandler pRequestServersResponse)
 		{
-			return _mmservers.RequestFriendsServerList(iApp, ppchFilters.Ptr, (uint32)ppchFilters.Length, (void*)&pRequestServersResponse);
+			return _iface.RequestFriendsServerList(iApp, ppchFilters.Ptr, (uint32)ppchFilters.Length, (void*)&pRequestServersResponse);
 		}
 
 		public static void ReleaseRequest(HServerListRequest hServerListRequest)
 		{
-			_mmservers.ReleaseRequest(hServerListRequest);
+			_iface.ReleaseRequest(hServerListRequest);
 		}
 
 		public static gameserveritem_t* GetServerDetails(HServerListRequest hRequest, int32 iServer)
 		{
-			return _mmservers.GetServerDetails(hRequest, iServer);
+			return _iface.GetServerDetails(hRequest, iServer);
 		}
 
 		public static void CancelQuery(HServerListRequest hRequest)
 		{
-			_mmservers.CancelQuery(hRequest);
+			_iface.CancelQuery(hRequest);
 		}
 
 		public static void RefreshQuery(HServerListRequest hRequest)
 		{
-			_mmservers.RefreshQuery(hRequest);
+			_iface.RefreshQuery(hRequest);
 		}
 
 		public static bool IsRefreshing(HServerListRequest hRequest)
 		{
-			return _mmservers.IsRefreshing(hRequest);
+			return _iface.IsRefreshing(hRequest);
 		}
 
 		public static int32 GetServerCount(HServerListRequest hRequest)
 		{
-			return _mmservers.GetServerCount(hRequest);
+			return _iface.GetServerCount(hRequest);
 		}
 
 		public static void RefreshServer(HServerListRequest hRequest, int32 iServer)
 		{
-			_mmservers.RefreshServer(hRequest, iServer);
+			_iface.RefreshServer(hRequest, iServer);
 		}
 
 		public static HServerQuery PingServer(uint32 unIP, uint16 usPort, in SteamMatchmakingPingResponseHandler pRequestServersResponse)
 		{
-			return _mmservers.PingServer(unIP, usPort, (void*)&pRequestServersResponse);
+			return _iface.PingServer(unIP, usPort, &pRequestServersResponse);
 		}
 
 		public static HServerQuery PlayerDetails(uint32 unIP, uint16 usPort, in SteamMatchmakingPlayersResponseHandler pRequestServersResponse)
 		{
-			return _mmservers.PlayerDetails(unIP, usPort, (void*)&pRequestServersResponse);
+			return _iface.PlayerDetails(unIP, usPort, &pRequestServersResponse);
 		}
 
 		public static HServerQuery ServerRules(uint32 unIP, uint16 usPort, in SteamMatchmakingRulesResponseHandler pRequestServersResponse)
 		{
-			return _mmservers.ServerRules(unIP, usPort, (void*)&pRequestServersResponse);
+			return _iface.ServerRules(unIP, usPort, &pRequestServersResponse);
 		}
 
 		public static void CancelServerQuery(HServerQuery hServerQuery)
 		{
-			_mmservers.CancelServerQuery(hServerQuery);
+			_iface.CancelServerQuery(hServerQuery);
 		}
 	}
 }
