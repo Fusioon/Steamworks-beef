@@ -158,7 +158,7 @@ namespace Steamworks
 
 		public static void Init()
 		{
-			if(_initialized)
+			if (_initialized)
 				return;
 
 			_initialized = true;
@@ -173,17 +173,20 @@ namespace Steamworks
 
 		static ~this()
 		{
-			for(let cb in _clientCallbacks)
-				delete cb.value;
-			for(let cb in _serverCallbacks)
-				delete cb.value;
-			for(let cb in _callResults)
-				delete cb.value;
+			if (_initialized)
+			{
+				for (let cb in _clientCallbacks)
+					delete cb.value;
+				for (let cb in _serverCallbacks)
+					delete cb.value;
+				for (let cb in _callResults)
+					delete cb.value;
 
-			delete _clientCallbacks;
-			delete _serverCallbacks;
-			delete _callResults;
-			delete _monitor;
+				delete _clientCallbacks;
+				delete _serverCallbacks;
+				delete _callResults;
+				delete _monitor;
+			}
 		}
 
 		public static void RunFrame(bool isGameServer)
