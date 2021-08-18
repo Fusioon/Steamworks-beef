@@ -8,11 +8,11 @@ namespace Steamworks
 {
 	static
 	{
-		internal static mixin CheckResult(bool b)
+		internal static mixin CheckResult(bool b, String name)
 		{
 			if (!b)
 			{
-				System.Diagnostics.Debug.Assert(false, Compiler.CallerExpression[0]);
+				System.Diagnostics.Debug.Assert(false, scope $"[SteamAPI] Failed to initialize '{name}'!");
 				return false;
 			}	
 		}
@@ -27,32 +27,32 @@ namespace Steamworks
 
 			CallbackDispatcher.Init();
 
-			CheckResult!(SteamUser.APIInit_User());
-			CheckResult!(SteamFriends.APIInit_User());
-			CheckResult!(SteamUtils.APIInit_User());
-			CheckResult!(SteamMatchmaking.APIInit_User());
-			CheckResult!(SteamMatchmakingServers.APIInit_User());
-			CheckResult!(SteamGameSearch.APIInit_User());
-			CheckResult!(SteamParties.APIInit_User());
-			CheckResult!(SteamRemoteStorage.APIInit_User());
-			CheckResult!(SteamUserStats.APIInit_User());
-			CheckResult!(SteamApps.APIInit_User());
-			CheckResult!(SteamNetworking.APIInit_User());
-			CheckResult!(SteamScreenshots.APIInit_User());
-			CheckResult!(SteamMusic.APIInit_User());
-			CheckResult!(SteamMusicRemote.APIInit_User());
-			CheckResult!(SteamHTTP.APIInit_User());
-			CheckResult!(SteamInput.APIInit_User());
-			CheckResult!(SteamController.APIInit_User());
-			CheckResult!(SteamUGC.APIInit_User());
-			CheckResult!(SteamAppList.APIInit_User());
-			CheckResult!(SteamHTMLSurface.APIInit_User());
-			CheckResult!(SteamInventory.APIInit_User());
-			CheckResult!(SteamVideo.APIInit_User());
-			CheckResult!(SteamParentalSettings.APIInit_User());
-			CheckResult!(SteamRemotePlay.APIInit_User());
-			CheckResult!(SteamNetworkingMessages.APIInit_User());
-			CheckResult!(SteamNetworkingSockets.APIInit_User());
+			CheckResult!(SteamUser.APIInit_User(), "SteamUser");
+			CheckResult!(SteamFriends.APIInit_User(), "SteamFriends");
+			CheckResult!(SteamUtils.APIInit_User(), "SteamUtils");
+			CheckResult!(SteamMatchmaking.APIInit_User(), "SteamMatchmaking");
+			CheckResult!(SteamMatchmakingServers.APIInit_User(), "SteamMatchmakingServers");
+			CheckResult!(SteamGameSearch.APIInit_User(), "SteamGameSearch");
+			CheckResult!(SteamParties.APIInit_User(), "SteamParties");
+			CheckResult!(SteamRemoteStorage.APIInit_User(), "SteamRemoteStorage");
+			CheckResult!(SteamUserStats.APIInit_User(), "SteamUserStats");
+			CheckResult!(SteamApps.APIInit_User(), "SteamApps");
+			CheckResult!(SteamNetworking.APIInit_User(), "SteamNetworking");
+			CheckResult!(SteamScreenshots.APIInit_User(), "SteamScreenshots");
+			CheckResult!(SteamMusic.APIInit_User(), "SteamMusic");
+			CheckResult!(SteamMusicRemote.APIInit_User(), "SteamMusicRemote");
+			CheckResult!(SteamHTTP.APIInit_User(), "SteamHTTP");
+			CheckResult!(SteamInput.APIInit_User(), "SteamInput");
+			CheckResult!(SteamController.APIInit_User(), "SteamController");
+			CheckResult!(SteamUGC.APIInit_User(), "SteamUGC");
+			CheckResult!(SteamAppList.APIInit_User(), "SteamAppList");
+			CheckResult!(SteamHTMLSurface.APIInit_User(), "SteamHTMLSurface");
+			CheckResult!(SteamInventory.APIInit_User(), "SteamInventory");
+			CheckResult!(SteamVideo.APIInit_User(), "SteamVideo");
+			CheckResult!(SteamParentalSettings.APIInit_User(), "SteamParentalSettings");
+			CheckResult!(SteamRemotePlay.APIInit_User(), "SteamRemotePlay");
+			CheckResult!(SteamNetworkingMessages.APIInit_User(), "SteamNetworkingMessages");
+			CheckResult!(SteamNetworkingSockets.APIInit_User(), "SteamNetworkingSockets");
 
 			return true;
 		}
@@ -99,16 +99,16 @@ namespace Steamworks
 
 			CallbackDispatcher.Init();
 
-			CheckResult!(SteamUtils.APIInit_Server());
-			CheckResult!(SteamApps.APIInit_Server());
-			CheckResult!(SteamNetworking.APIInit_Server());
-			CheckResult!(SteamHTTP.APIInit_Server());
-			CheckResult!(SteamUGC.APIInit_Server());
-			CheckResult!(SteamInventory.APIInit_Server());
-			CheckResult!(SteamNetworkingMessages.APIInit_Server());
-			CheckResult!(SteamNetworkingSockets.APIInit_Server());
-			CheckResult!(SteamGameServer.APIInit_Server());
-			CheckResult!(SteamGameServerStats.APIInit_Server());
+			CheckResult!(SteamUtils.APIInit_Server(), "SteamUtils");
+			CheckResult!(SteamApps.APIInit_Server(), "SteamApps");
+			CheckResult!(SteamNetworking.APIInit_Server(), "SteamNetworking");
+			CheckResult!(SteamHTTP.APIInit_Server(), "SteamHTTP");
+			CheckResult!(SteamUGC.APIInit_Server(), "SteamUGC");
+			CheckResult!(SteamInventory.APIInit_Server(), "SteamInventory");
+			CheckResult!(SteamNetworkingMessages.APIInit_Server(), "SteamNetworkingMessages");
+			CheckResult!(SteamNetworkingSockets.APIInit_Server(), "SteamNetworkingSockets");
+			CheckResult!(SteamGameServer.APIInit_Server(), "SteamGameServer");
+			CheckResult!(SteamGameServerStats.APIInit_Server(), "SteamGameServerStats");
 			
 			return true;
 		}
